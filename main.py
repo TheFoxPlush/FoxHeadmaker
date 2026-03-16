@@ -65,6 +65,7 @@ MIN_REQ_TIME = 4
 
 class Config():
     def __init__(self) -> None:
+        #default values
         self.auth_key = ""
         self.user_agent = "FoxHeadmaker"
         self.last_file_dialog = HOME_DIR
@@ -86,6 +87,8 @@ class FilePicker(ModalScreen[str]):
         )
     def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
         self.dismiss(str(event.path))
+        config.last_file_dialog = str(event.path.parent)
+        config.save()
 
 def image_to_static_text(image: Image.Image) -> str:
     image = image.convert("RGB")
@@ -275,7 +278,7 @@ class FoxHeadmakerApp(App):
 
         yield Header()
         with Collapsible(title="Mineskin.org API Key"):
-            yield Input(placeholder="Enter your key here",password=True,select_on_focus=True,value=config.auth_key,classes="collapsible-content")
+            yield Input(placeholder="Enter your key here",password=True,select_on_focus=True,value=config.auth_key,classes="collapsible-content",id="input_auth_key")
             yield Link("How do I get a key?",url="https://account.mineskin.org/keys",classes="collapsible-content")
         self.current_spritesheet_path = None
         self.current_spritesheet_compiled = False
@@ -325,6 +328,11 @@ class FoxHeadmakerApp(App):
                 send_millomod()
             elif event.button.id == "send_codeclient":
                 send_codeclient()
+
+    def on_input_blurred(self, event: Input.Blurred) -> None:
+        if event.input.id == "input_auth_key":
+            config.auth_key = event.input.value
+            config.save()
 
     def reset_head_compilation(self) -> None:
         self.current_spritesheet_compiled = False
