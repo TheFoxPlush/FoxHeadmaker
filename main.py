@@ -1,7 +1,6 @@
 from textual.app import App, ComposeResult, SystemCommand
-from textual.widget import Widget
-from textual.widgets import Footer, Header, Input, Collapsible, Link, Button, DirectoryTree, Static, LoadingIndicator, ProgressBar
-from textual.containers import Container, HorizontalGroup, VerticalScroll, Center
+from textual.widgets import Header, Input, Collapsible, Link, Button, DirectoryTree, Static, LoadingIndicator, ProgressBar
+from textual.containers import HorizontalGroup, VerticalScroll, Center
 from textual.screen import ModalScreen, Screen
 from PIL import Image
 import os
@@ -12,7 +11,7 @@ from json import dumps as json_dumps
 from io import BytesIO
 from rich.text import Text
 from time import sleep, time
-import threading
+from threading import Thread as thread
 from requests import post
 from base64 import b64decode,b64encode
 from pyperclip import copy as pyperclip_copy
@@ -380,7 +379,7 @@ class FoxHeadmakerApp(App):
         if config.auth_key == "":
             self.notify("You must define a mineskin.org API Key.",severity="error")
             return
-        threading.Thread(target=skinify_multiple,args=(self.current_head_files,)).start()
+        thread(target=skinify_multiple,args=(self.current_head_files,)).start()
 
 if __name__ == "__main__":
     global config,app
