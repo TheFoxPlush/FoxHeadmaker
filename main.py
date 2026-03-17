@@ -82,13 +82,20 @@ class FilePicker(ModalScreen[str]):
     """Modal screen that returns a selected file path."""
     def compose(self) -> ComposeResult:
         yield VerticalScroll(
-            Static("Select a file"),
-            DirectoryTree(config.last_file_dialog),
+            Input(placeholder="Enter a path",value=config.last_file_dialog),
+            DirectoryTree(config.last_file_dialog,id="directory_tree"),
         )
     def on_directory_tree_file_selected(self, event: DirectoryTree.FileSelected) -> None:
         self.dismiss(str(event.path))
         config.last_file_dialog = str(event.path.parent)
         config.save()
+
+    def on_input_submitted(self, event: Input.Submitted) -> None:
+        if not(os.path.isdir(event.value)):
+            app.notify("Not a valid folder.",severity="error")
+            return
+        self.query_one("#directory_tree",DirectoryTree).path = event.value
+        self.query_one("#directory_tree",DirectoryTree).reload()
 
 def image_to_static_text(image: Image.Image) -> str:
     image = image.convert("RGB")
