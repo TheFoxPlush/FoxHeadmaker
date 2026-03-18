@@ -373,8 +373,8 @@ class FoxHeadmakerApp(App):
                 self.notify("Spritesheet file must be .png.",title="An error occured importing the spritesheet.",severity="error")
                 return
             self.current_spritesheet_path = path
-            self.current_spritesheet_file = self.current_spritesheet_path.split("\\")[-1]
-            self.current_spritesheet_name = ".".join(self.current_spritesheet_file.split(".")[:-1])
+            self.current_spritesheet_file = os.path.basename(self.current_spritesheet_path)
+            self.current_spritesheet_name = os.path.splitext(self.current_spritesheet_file)[0]
             self.query_one("#result_spritesheet", Static).update(f"📄 {self.current_spritesheet_file}")
             self.reset_head_compilation()
     def split_spritesheet(self) -> None:
