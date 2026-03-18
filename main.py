@@ -367,7 +367,10 @@ class FoxHeadmakerApp(App):
     def spritesheet_chosen(self, path: str | None) -> None:
         if path:
             if "@" in path:
-                self.query_one("#result_spritesheet", Static).update(f"❌ Spritesheet path cannot contain @.")
+                self.notify("Spritesheet path cannot contain @.",title="An error occured importing the spritesheet.",severity="error")
+                return
+            if not(path.endswith(".png")):
+                self.notify("Spritesheet file must be .png.",title="An error occured importing the spritesheet.",severity="error")
                 return
             self.current_spritesheet_path = path
             self.current_spritesheet_file = self.current_spritesheet_path.split("\\")[-1]
