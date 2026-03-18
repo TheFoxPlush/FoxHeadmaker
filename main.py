@@ -360,6 +360,9 @@ class FoxHeadmakerApp(App):
         self.current_spritesheet_compiled = False
         self.query_one("#result_compile_heads", Static).update("No heads compiled")
 
+    def on_paste(self,event) -> None: #for drag and drop
+        if os.path.exists(event.text):
+            self.spritesheet_chosen(event.text)
 
     def spritesheet_chosen(self, path: str | None) -> None:
         if path:
