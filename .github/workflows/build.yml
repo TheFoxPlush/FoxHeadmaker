@@ -25,6 +25,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install pyinstaller
+          pip install -r requirements.txt
         shell: bash
 
       - name: Build with PyInstaller
@@ -36,16 +37,16 @@ jobs:
         run: |
           mkdir dist_final
           if [[ "$RUNNER_OS" == "Windows" ]]; then
-            mv dist/main.exe dist_final/myapp-windows.exe
+            mv dist/main.exe dist_final/foxheadmaker-windows.exe
           elif [[ "$RUNNER_OS" == "macOS" ]]; then
-            mv dist/main dist_final/myapp-macos
+            mv dist/main dist_final/foxheadmaker-macos
           else
-            mv dist/main dist_final/myapp-linux
+            mv dist/main dist_final/foxheadmaker-linux
           fi
         shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: myapp-${{ matrix.os }}
+          name: foxheadmaker-${{ matrix.os }}
           path: dist_final/*
