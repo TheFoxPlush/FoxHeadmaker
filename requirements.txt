@@ -1,0 +1,6 @@
+Pillow==12.1.1
+pyperclip==1.11.0
+Requests==2.32.5
+rich==14.3.3
+textual==8.1.1
+websockets==16.0
