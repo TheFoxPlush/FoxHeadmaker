@@ -120,6 +120,7 @@ def save_values(values,name):
 def skinify_multiple(current_head_files):
     values = {}
     save_values(values,app.current_spritesheet_name)
+    process_ran = True
     for head_file in current_head_files:
         with Image.open(CACHE_HEADS_DIR+"/"+head_file,"r") as skin_image:
             head_image = skin_image.crop((8,8,16,16))
@@ -127,10 +128,20 @@ def skinify_multiple(current_head_files):
         app.query_one("#loadingbar_mineskin",Static).update(f"[underline]💻 mineskin.org[/]\n[italic gray]Waiting for response...[/]")
         app.query_one("#loadingbar_skinvalue",Static).update(f"[underline]💾 Skin Value[/]\n[italic gray]Waiting for response...[/]")
         value = skinify(f"{CACHE_HEADS_DIR}/{head_file}",f"{app.current_spritesheet_name}_{head_file}")
-        values[f"{app.current_spritesheet_name}_{head_file}"] = value
-        save_values(values,app.current_spritesheet_name)
-        app.query_one('#progressbar',ProgressBar).advance(1)
-    make_item(app.current_spritesheet_name)
+        if not(value): #task has been shut down
+            process_ran = False
+            break
+        else:
+            values[f"{app.current_spritesheet_name}_{head_file}"] = value
+            save_values(values,app.current_spritesheet_name)
+            app.query_one('#progressbar',ProgressBar).advance(1)
+    if process_ran:
+        make_item(app.current_spritesheet_name)
+    else:
+        app.query_one("#loadingbar_headtexture",Static).update(f"[underline]🎨 Head texture[/]\n")
+        app.query_one("#loadingbar_mineskin",Static).update(f"[underline]💻 mineskin.org[/]\n")
+        app.query_one("#loadingbar_skinvalue",Static).update(f"[underline]💾 Skin Value[/]\n")
+
 
 def make_item(name,mode="singles_only"): #"singles_only" or "chains"
     try:
@@ -177,9 +188,13 @@ def skinify(headfile,name):
         request_time = time() - request_time
         sleep_time = 0
         if response.status_code!=200:
-            app.notify(f"Response status code: {response.status_code}. Trying again in 5s...",title="An error occured during the process.",severity="error")
-            sleep(5)
-            result = skinify(headfile,name)
+            if response.status_code==403: #unauthorized access. Likely smth wrong with api key
+                app.notify("Your api key is likely incorrect. Shutting down task...",title=f"Error from mineskin.org. Unauthorized access",severity="error")
+                return(None)
+            else:
+                app.notify("Trying again in 5s...",title=f"Error from mineskin.org. Response status code: {response.status_code}.",severity="error")
+                sleep(5)
+                result = skinify(headfile,name)
         else:
             result = response.json()['data']['texture']['value']
             if response.json()["rateLimit"]["limit"]["remaining"]==0:
