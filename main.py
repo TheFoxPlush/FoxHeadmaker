@@ -242,7 +242,7 @@ class FoxHeadmakerApp(App):
         padding: 1;
     }
 
-    HorizontalGroup {
+    .horizontal_group {
         background: $boost;
 
         margin: 1;
@@ -284,6 +284,32 @@ class FoxHeadmakerApp(App):
     #send_codeclient {
         color: #ffa200;
     }
+
+    .link {
+        align: center middle;
+    }
+
+    #link_box {
+        align: center middle;
+    }
+
+    #link_github {
+        color: white;
+        padding: 1;
+        align: center middle;
+    }
+
+    #link_discord {
+        color: #5562f6;
+        padding: 1;
+        align: center middle;
+    }
+
+    #link_twitch {
+        color: #6441a5;
+        padding: 1;
+        align: center middle;
+    }
     """
     AUTO_FOCUS = None
     def on_mount(self) -> None:
@@ -299,6 +325,12 @@ class FoxHeadmakerApp(App):
         """Create child widgets for the app."""
 
         yield Header()
+        yield HorizontalGroup(
+            Center(Link("GitHub",url="https://github.com/TheFoxPlush/FoxHeadmaker",classes="link",id="link_github")),
+            Center(Link("Discord",url="https://discord.gg/xjpaRGCTgY",classes="link",id="link_discord")),
+            Center(Link("Twitch",url="https://twitch.tv/thefoxplush",classes="link",id="link_twitch")),
+            id="link_box"
+        )
         with Collapsible(title="Mineskin.org API Key"):
             yield Input(placeholder="Enter your key here",password=True,select_on_focus=True,value=config.auth_key,classes="collapsible-content",id="input_auth_key")
             yield Link("How do I get a key?",url="https://account.mineskin.org/keys",classes="collapsible-content")
@@ -311,26 +343,28 @@ class FoxHeadmakerApp(App):
             Button("Compile Heads",id="compile_heads",classes="middlebar"),
             Static("No heads compiled",id="result_compile_heads",classes="middlebar"),
             Button("Launch",variant="success",id="launch_requests",classes="middlebar"),
-            classes="middlebar-container"
+            classes="middlebar-container horizontal_group"
         )
         yield HorizontalGroup(
             Static("[underline]🎨 Head texture[/]\n",classes="loadingbartext",id="loadingbar_headtexture"),LoadingIndicator(classes="loadingbar"),
             Static("[underline]💻 mineskin.org[/]\n",classes="loadingbartext",id="loadingbar_mineskin"),LoadingIndicator(classes="loadingbar"),
-            Static("[underline]💾 Skin Value[/]\n",classes="loadingbartext",id="loadingbar_skinvalue")
+            Static("[underline]💾 Skin Value[/]\n",classes="loadingbartext",id="loadingbar_skinvalue"),
+            classes="horizontal_group"
         )
         yield HorizontalGroup(
             Center(
             ProgressBar(
                 id="progressbar"
             )
-            )
+            ),
+            classes="horizontal_group"
         )
         yield Static("🍎 Waiting for item...",id="item_indicator")
         yield HorizontalGroup(
             Button("📋 Copy give command to clipboard",classes="middlebar",id="send_clipboard"),
             Button("🙀 Send item to MilloMod",classes="middlebar",id="send_millomod"),
             Button("⭐ Send item to CodeClient",classes="middlebar",id="send_codeclient"),
-            classes="middlebar-container"
+            classes="middlebar-container horizontal_group"
         )
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
