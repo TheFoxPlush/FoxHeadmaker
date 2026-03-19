@@ -1,5 +1,5 @@
 from textual.app import App, ComposeResult, SystemCommand
-from textual.widgets import Header, Input, Collapsible, Link, Button, DirectoryTree, Static, LoadingIndicator, ProgressBar
+from textual.widgets import Header, Input, Collapsible, Link, Button, DirectoryTree, Static, LoadingIndicator, ProgressBar, Checkbox
 from textual.containers import HorizontalGroup, VerticalScroll, Center
 from textual.screen import ModalScreen, Screen
 from PIL import Image
@@ -146,15 +146,25 @@ def skinify_multiple(current_head_files):
         app.query_one("#loadingbar_skinvalue",Static).update(f"[underline]💾 Skin Value[/]\n")
 
 
-def make_item(name,mode="singles_only"): #"singles_only" or "chains"
+def make_item(name):
+    chain_mode = app.query_one("#chain_mode",CustomCheck).value
+    if chain_mode:
+        current_chain = []
     try:
         with open(f"{CACHE_VALUES_DIR}/{name}.json","r") as valuesfile:
             values = json_load(valuesfile)
         lore = []
         for key,value in values.items():
-            chain = False
             line = '{player:{properties:[{name:"textures",value:"'+value+'"}]}}'
-            lore.append(line)
+            if chain_mode:
+                total_id,chain_progress = key.split("@")[0:] #[0] is total id, [1] is chain id
+                if chain_progress == "0" and len(current_chain) > 0:
+                    current_chain = "["+",".join(current_chain)+"]"
+                    lore.append(current_chain)
+                    current_chain = []
+                current_chain.append(line)
+            else:
+                lore.append(line)
         lore = "["+",".join(lore)+"]"
         app.item = 'apple[lore='+lore+',custom_name={"color":"#FFA200","italic":false,"shadow_color":-10341322,"text":"'+name+'"}]'
         app.item_exports = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","italic":false,"shadow_color":-10341322,"text":"'+name+'"},"lore":'+lore+'}}'
@@ -229,6 +239,17 @@ def clear_cache():
     
     app.notify(f"Cleared {total_files} head files, saving {total_size/(1<<17):,.0f} Mb", title="Cache Cleared")
     app.reset_head_compilation()
+
+#from: https://blog.pythonlibrary.org/2026/03/16/textual-creating-a-custom-checkbox/
+class CustomCheck(Checkbox):
+    BUTTON_INNER = " "
+    def toggle(self) -> None:
+        if self.value:
+            CustomCheck.BUTTON_INNER = " "
+        else:
+            CustomCheck.BUTTON_INNER = "X"
+        self.value = not self.value
+        return self
 
 class FoxHeadmakerApp(App):
     """A Textual app to compile heads for df usage."""
@@ -346,6 +367,7 @@ class FoxHeadmakerApp(App):
             Button("Compile Heads",id="compile_heads",classes="middlebar"),
             Static("No heads compiled",id="result_compile_heads",classes="middlebar"),
             Button("Launch",variant="success",id="launch_requests",classes="middlebar"),
+            CustomCheck("⛓️ Chain Mode",classes="middlebar",id="chain_mode"), #add later: \n[italic gray]Stitch together horizontally adjacent heads.[/]
             classes="middlebar-container horizontal_group"
         )
         yield HorizontalGroup(
