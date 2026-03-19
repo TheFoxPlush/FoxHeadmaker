@@ -157,7 +157,7 @@ def make_item(name):
         for key,value in values.items():
             line = '{player:{properties:[{name:"textures",value:"'+value+'"}]}}'
             if chain_mode:
-                total_id,chain_progress = key.split("@")[0:] #[0] is total id, [1] is chain id
+                chain_progress = os.path.splitext(key.split("@")[-1])[0]
                 if chain_progress == "0" and len(current_chain) > 0:
                     current_chain = "["+",".join(current_chain)+"]"
                     lore.append(current_chain)
