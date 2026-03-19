@@ -165,6 +165,8 @@ def make_item(name):
                 current_chain.append(line)
             else:
                 lore.append(line)
+        if chain_mode and len(current_chain)>0:
+            lore.append(current_chain)
         lore = "["+",".join(lore)+"]"
         app.item = 'apple[lore='+lore+',custom_name={"color":"#FFA200","italic":false,"shadow_color":-10341322,"text":"'+name+'"}]'
         app.item_exports = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","italic":false,"shadow_color":-10341322,"text":"'+name+'"},"lore":'+lore+'}}'
