@@ -177,9 +177,12 @@ def send_clipboard(item):
     app.notify("Give command copied to clipboard",title="Success!")
 
 def send_millomod(item): #must be in format item_exports
-    with connect("ws://localhost:31321") as websocket:
-        websocket.send(json_dumps({"type":"item","source":"FoxHeadmaker","data":f"{item}"}))
-    app.notify("Item sent to MilloMod",title="Success!")
+    try:
+        with connect("ws://localhost:31321") as websocket:
+            websocket.send(json_dumps({"type":"item","source":"FoxHeadmaker","data":f"{item}"}))
+        app.notify("Item sent to MilloMod",title="Success!")
+    except Exception as e:
+        app.notify(f"{e}",title="Error sending to MilloMod",severity="error")
 
 def send_codeclient(item): #must be in format item_exports
     try:
