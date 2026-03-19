@@ -63,6 +63,9 @@ HEAD_TEMPLATE = Image.open(BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00
 
 MIN_REQ_TIME = 4
 
+FUNCTION_ITEM = '''player_head[custom_data={PublicBukkitValues:{"hypercube:codetemplatedata":'{"author":"TheFoxPlush","name":"&b&lFunction &3» &bfoxheadmaker_export","version":1,"code":"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"}'}},custom_name={extra:[{color:"#FFA200",shadow_color:-10341322,text:"FoxHeadmaker Extraction Function"}],italic:0b,text:""},lore=[{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Length: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"16 Blocks",underlined:0b}],text:""},{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Author: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"TheFoxPlush",underlined:0b}],text:""}],profile={id:[I;-1551409397,-611758825,-1137461988,998522893],name:"TheFoxPlush",properties:[{name:"textures",value:"ewogICJ0aW1lc3RhbXAiIDogMTc3Mzk0MzMxMDU5NSwKICAicHJvZmlsZUlkIiA6ICJhMzg3NWYwYmRiODk0ZDE3YmMzM2I1MWMzYjg0NDAwZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVGb3hQbHVzaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMWQ1Nzg3NTFhYzRkMjEzOWY4ODA3ZWE1NWM1MmNhM2ZhYTM3Y2M0NGU3NmMwOTBjMWYzOWZhNDA2NTQ2NzgxIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0sCiAgICAiQ0FQRSIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhkZTRhODE2ODhhZDE4YjQ5ZTczNWEyNzNlMDg2YzE4ZjFlMzk2Njk1NjEyM2NjYjU3NDAzNGMwNmY1ZDMzNiIKICAgIH0KICB9Cn0="}]}]'''
+FUNCTION_ITEM_EXPORTS = '''{DF_NBT:4671,components:{"minecraft:custom_data":{PublicBukkitValues:{"hypercube:codetemplatedata":'{"author":"TheFoxPlush","name":"&b&lFunction &3» &bfoxheadmaker_export","version":1,"code":"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"}'}},"minecraft:custom_name":{extra:[{color:"#FFA200",shadow_color:-10341322,text:"FoxHeadmaker Extraction Function"}],italic:0b,text:""},"minecraft:lore":[{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Length: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"16 Blocks",underlined:0b}],text:""},{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Author: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"TheFoxPlush",underlined:0b}],text:""}],"minecraft:profile":{id:[I;-1551409397,-611758825,-1137461988,998522893],name:"TheFoxPlush",properties:[{name:"textures",signature:"qDqWbVRbv2hK3ik8wfBaIq9icU4qQstuxPfumbSjIv2votLAwmAyhV33I6GRd6gBoEBVyc6Kd3Q8226oj+dJFJ+A7LpDNbrbZbCM9v9dpqeXaInGvMeSq1177roqo0OtgqXt9K9iZ00JVyIPMyzUsN4Ky5LvamXR7YflFmMaPwfpyvBTgTWj2zm6GZ0Oh47BFfHSyKdUEjHnLdE+7vL5/g19C3e/hMkJvC8oUM/cnMuHs6QYBplXOV0bHAD62kdLLsNkTrtVcTyRcX2MfiuyWIe/PGNbul2VDlT32s0XBVWXcomyJ+5MI+X2DXE0nVsMwcDt8kJ4ovbK8qjlCPPSXBSpSZppyMGRLvSOGgQVYbDWyHWkctM6i+eJA5eGeZzqpbHAouxMj4xSO9HzPn4EmDVE8TsOdX9RQNGpfxlnvdU7hlfh7W7NRjnK7YWztVPhMH4QHLIrY+DVvuXKVGrtGr36pezhr/2JSxZ6WgZYofuZ0aE1ejObQiOw8MCNLkLrCC/dZJoOkpAuhTRHqs4Q5PlPwZzK+rIBc34KPhn54f4aUI6oRJPWVr8Hyrv5XpAwboByb/Yj9A7ZH89hZ1lJNfxATJQs1NvLr5N135h1cyefM4Ojsgvu9FqCZ5Vj3VxDYaBfLhIMzckTi8g9lZK1vZzSOeXInf4FD7T9uL0ot8A=",value:"ewogICJ0aW1lc3RhbXAiIDogMTc3Mzk0MzMxMDU5NSwKICAicHJvZmlsZUlkIiA6ICJhMzg3NWYwYmRiODk0ZDE3YmMzM2I1MWMzYjg0NDAwZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVGb3hQbHVzaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMWQ1Nzg3NTFhYzRkMjEzOWY4ODA3ZWE1NWM1MmNhM2ZhYTM3Y2M0NGU3NmMwOTBjMWYzOWZhNDA2NTQ2NzgxIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0sCiAgICAiQ0FQRSIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhkZTRhODE2ODhhZDE4YjQ5ZTczNWEyNzNlMDg2YzE4ZjFlMzk2Njk1NjEyM2NjYjU3NDAzNGMwNmY1ZDMzNiIKICAgIH0KICB9Cn0="}]}},count:1,id:"minecraft:player_head"}'''
+
 class Config():
     def __init__(self) -> None:
         #default values
@@ -159,19 +162,19 @@ def make_item(name,mode="singles_only"): #"singles_only" or "chains"
     except Exception as e:
         app.notify(f"{e}",title="Error in item compilation: Contact TheFoxPlush",severity="error")
 
-def send_clipboard():
-    pyperclip_copy(f"/give @p {app.item} 1")
+def send_clipboard(item):
+    pyperclip_copy(f"/give @p {item} 1")
     app.notify("Give command copied to clipboard",title="Success!")
 
-def send_millomod():
+def send_millomod(item): #must be in format item_exports
     with connect("ws://localhost:31321") as websocket:
-        websocket.send(json_dumps({"type":"item","source":"FoxHeadmaker","data":f"{app.item_exports}"}))
+        websocket.send(json_dumps({"type":"item","source":"FoxHeadmaker","data":f"{item}"}))
     app.notify("Item sent to MilloMod",title="Success!")
 
-def send_codeclient():
+def send_codeclient(item): #must be in format item_exports
     try:
         with connect("ws://localhost:31375") as websocket:
-            websocket.send(f"give {app.item_exports}")
+            websocket.send(f"give {item}")
         app.notify("Item sent to CodeClient",title="Success!")
     except Exception as e:
         app.notify(f"{e}",title="Error sending to CodeClient",severity="error")
@@ -273,15 +276,15 @@ class FoxHeadmakerApp(App):
         content-align: center middle;
     }
 
-    #send_clipboard {
+    .send_clipboard {
         color: #3cb1c8;
     }
 
-    #send_millomod {
+    .send_millomod {
         color: #ff8137;
     }
 
-    #send_codeclient {
+    .send_codeclient {
         color: #ffa200;
     }
 
@@ -361,11 +364,19 @@ class FoxHeadmakerApp(App):
         )
         yield Static("🍎 Waiting for item...",id="item_indicator")
         yield HorizontalGroup(
-            Button("📋 Copy give command to clipboard",classes="middlebar",id="send_clipboard"),
-            Button("🙀 Send item to MilloMod",classes="middlebar",id="send_millomod"),
-            Button("⭐ Send item to CodeClient",classes="middlebar",id="send_codeclient"),
+            Button("📋 Copy give command to clipboard",classes="middlebar send_clipboard",id="send_clipboard"),
+            Button("🙀 Send item to MilloMod",classes="middlebar send_millomod",id="send_millomod"),
+            Button("⭐ Send item to CodeClient",classes="middlebar send_codeclient",id="send_codeclient"),
             classes="middlebar-container horizontal_group"
         )
+        with Collapsible(title="Styled Text Extraction Function"):
+            yield HorizontalGroup(
+                Button("📋 Copy give command to clipboard",classes="middlebar send_clipboard",id="send_clipboard_function"),
+                Button("🙀 Send template to MilloMod",classes="middlebar send_millomod",id="send_millomod_function"),
+                Button("⭐ Send template to CodeClient",classes="middlebar send_codeclient",id="send_codeclient_function"),
+                classes="middlebar-container horizontal_group"
+            )
+
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "choose_spritesheet":
@@ -374,16 +385,24 @@ class FoxHeadmakerApp(App):
             self.split_spritesheet()
         elif event.button.id == "launch_requests":
             self.launch_skinify_multiple()
+        #sending the produced item
         elif event.button.id == "send_clipboard" or event.button.id == "send_millomod" or event.button.id == "send_codeclient":
             if not(app.item):
                 app.notify("You need to have an item to send!",title="Error",severity="error")
                 return
             if event.button.id == "send_clipboard":
-                send_clipboard()
+                send_clipboard(app.item)
             elif event.button.id == "send_millomod":
-                send_millomod()
+                send_millomod(app.item_exports)
             elif event.button.id == "send_codeclient":
-                send_codeclient()
+                send_codeclient(app.item_exports)
+        #sending the function item
+        elif event.button.id == "send_clipboard_function":
+            send_clipboard(FUNCTION_ITEM)
+        elif event.button.id == "send_millomod_function":
+            send_millomod(FUNCTION_ITEM_EXPORTS)
+        elif event.button.id == "send_codeclient_function":
+            send_codeclient(FUNCTION_ITEM_EXPORTS)
 
     def on_input_blurred(self, event: Input.Blurred) -> None:
         if event.input.id == "input_auth_key":
