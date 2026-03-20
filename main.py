@@ -55,13 +55,16 @@ CACHE_DIR = os.path.join(user_cache_dir_from_platformdirs(),"FoxHeadmaker")
 if not os.path.exists(CACHE_DIR):
     os.makedirs(CACHE_DIR)
 
-CACHE_HEADS_DIR = os.path.join(CACHE_DIR,"heads")
-if not os.path.exists(CACHE_HEADS_DIR):
-    os.makedirs(CACHE_HEADS_DIR)
+def _cache_folders(folders):
+    dirs = []
+    for folder in folders:
+        dir_ = os.path.join(CACHE_DIR,folder)
+        if not os.path.exists(dir_):
+            os.makedirs(dir_)
+        dirs.append(dir_)
+    return dirs
 
-CACHE_VALUES_DIR = os.path.join(CACHE_DIR,"values")
-if not os.path.exists(CACHE_VALUES_DIR):
-    os.makedirs(CACHE_VALUES_DIR)
+CACHE_HEADS_DIR,CACHE_VALUES_DIR = _cache_folders(["heads","values"])
 
 HOME_DIR = os.path.expanduser("~/Desktop")
 
