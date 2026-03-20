@@ -33,7 +33,11 @@ My hope in publishing tools to make this technology easier to handle for any pla
 
 ## Usage
 
-_Recording a video soon for usage tutorial._
+A video showcasing how to use the tool is available below.
+
+<a href="https://www.youtube.com/watch?v=G18_ZOQWhxA">
+<img src=https://img.youtube.com/vi/G18_ZOQWhxA/0.jpg>
+</a>
 
 ## Contact
 
