@@ -484,6 +484,8 @@ class FoxHeadmakerApp(App):
                 self.query_one("#result_compile_heads", Static).update(f"👤 Found {head_id} Heads")
                 self.current_spritesheet_compiled = True
                 self.query_one('#progressbar',ProgressBar).total = head_id
+                self.query_one('#progressbar',ProgressBar).progress = 0
+                self.query_one('#progressbar',ProgressBar).update()
             except Exception as e:
                 self.notify(f"{e}.",severity="error",title="An error occured during compilation.")
         else:
