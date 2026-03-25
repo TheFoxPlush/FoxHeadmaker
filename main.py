@@ -137,24 +137,30 @@ def skinify_multiple(current_head_files):
     values = {}
     save_values(values,app.current_spritesheet_name)
     process_ran = True
-    for head_file in current_head_files:
-        with Image.open(CACHE_HEADS_DIR+"/"+head_file,"r") as skin_image:
-            head_image = skin_image.crop((8,8,16,16))
-            app.query_one("#loadingbar_headtexture",Static).update(f"[underline]🎨 Head texture[/]\n{image_to_static_text(head_image)}")
-        app.query_one("#loadingbar_mineskin",Static).update(f"[underline]💻 mineskin.org[/]\n[italic gray]Waiting for response...[/]")
-        app.query_one("#loadingbar_skinvalue",Static).update(f"[underline]💾 Skin Value[/]\n[italic gray]Waiting for response...[/]")
-        value = skinify(f"{CACHE_HEADS_DIR}/{head_file}",f"{app.current_spritesheet_name}_{head_file}")
-        if not(value): #task has been shut down
-            process_ran = False
-            break
+    try:
+        for head_file in current_head_files:
+            with Image.open(CACHE_HEADS_DIR+"/"+head_file,"r") as skin_image:
+                head_image = skin_image.crop((8,8,16,16))
+                app.query_one("#loadingbar_headtexture",Static).update(f"[underline]🎨 Head texture[/]\n{image_to_static_text(head_image)}")
+            app.query_one("#loadingbar_mineskin",Static).update(f"[underline]💻 mineskin.org[/]\n[italic gray]Waiting for response...[/]")
+            app.query_one("#loadingbar_skinvalue",Static).update(f"[underline]💾 Skin Value[/]\n[italic gray]Waiting for response...[/]")
+            value = skinify(f"{CACHE_HEADS_DIR}/{head_file}",f"{app.current_spritesheet_name}_{head_file}")
+            if not(value): #task has been shut down
+                process_ran = False
+                break
+            else:
+                values[f"{app.current_spritesheet_name}_{head_file}"] = value
+                save_values(values,app.current_spritesheet_name)
+                app.query_one('#progressbar',ProgressBar).advance(1)
+        if process_ran:
+            make_item(app.current_spritesheet_name)
         else:
-            values[f"{app.current_spritesheet_name}_{head_file}"] = value
-            save_values(values,app.current_spritesheet_name)
-            app.query_one('#progressbar',ProgressBar).advance(1)
-    if process_ran:
-        make_item(app.current_spritesheet_name)
-    else:
+            app.reset_mineskin_process()
+    except Exception as e:
+        app.notify(f"{e}",title="Error in mineskin process: Contact TheFoxPlush",severity="error")
+    finally:
         app.reset_mineskin_process()
+        app.skinify_thread = None
 
 def make_item(name):
     chain_mode = app.query_one("#chain_mode",CustomCheck).value
@@ -435,6 +441,7 @@ class FoxHeadmakerApp(App):
         self.current_spritesheet_path = None
         self.current_spritesheet_compiled = False
         self.item = None
+        self.skinify_thread = None
         yield HorizontalGroup(
             Button("Load Spritesheet",id="choose_spritesheet",classes="middlebar"),
             Static("No file selected", id="result_spritesheet",classes="middlebar"),
@@ -571,7 +578,11 @@ class FoxHeadmakerApp(App):
         if config.auth_key == "":
             self.notify("You must define a mineskin.org API Key.",severity="error")
             return
-        thread(target=skinify_multiple,args=(self.current_head_files,)).start()
+        if self.skinify_thread:
+            self.notify("You can only run a single item making process for now.",severity="error")
+            return
+        self.skinify_thread = thread(target=skinify_multiple,args=(self.current_head_files,))
+        self.skinify_thread.start()
 
     def verify_update(self):
         global latest_version
