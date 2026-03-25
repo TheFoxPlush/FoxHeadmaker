@@ -5,6 +5,8 @@ from textual.screen import ModalScreen, Screen
 from packaging import version
 from PIL import Image
 import os
+import asyncio
+from sys import exit as sys_exit
 from json import load as json_load
 from json import loads as json_loads
 from json import dump as json_dump
@@ -568,11 +570,28 @@ class FoxHeadmakerApp(App):
         if accept:
             webbrowser_open(LATEST_URL)
 
+def force_exit(): #nuclear option
+    try:
+        sys_exit(0)
+    finally:
+        os._exit(0)
 
+async def shutdown():
+    tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+    for t in tasks:
+        t.cancel()
+    await asyncio.gather(*tasks, return_exceptions=True)
 
 if __name__ == "__main__":
     global config,app
     config = Config()
     config.save()
     app = FoxHeadmakerApp()
-    app.run()
+    try:
+        app.run()
+    finally:
+        try:
+            asyncio.run(shutdown())
+        except Exception:
+            pass
+        force_exit()
