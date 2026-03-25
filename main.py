@@ -303,7 +303,7 @@ class UpdateScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         with Container():
-            yield Label("An update is available.")
+            yield Label(f"A new update ({latest_version}) is available.")
             with Horizontal():
                 yield Button("Ignore", id="no", variant="error")
                 yield Button("See release", id="yes", variant="success")
@@ -560,9 +560,10 @@ class FoxHeadmakerApp(App):
         thread(target=skinify_multiple,args=(self.current_head_files,)).start()
 
     def verify_update(self):
+        global latest_version
         response = requests_get(LATEST_URL_API,timeout=5)
-        latest = response.json()["tag_name"]
-        if latest and version.parse(latest[1:]) > version.parse(__version__): #1: to avoid v
+        latest_version = response.json()["tag_name"]
+        if latest_version and version.parse(latest_version[1:]) > version.parse(__version__): #1: to avoid v
             do_update = False
             self.push_screen(UpdateScreen(),self.do_update)
 
