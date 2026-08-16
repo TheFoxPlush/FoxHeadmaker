@@ -30,7 +30,13 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --icon "logo.ico" --add-data "assets;assets" main.py
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            SEP=";"
+          else
+            SEP=":"
+          fi
+      
+          pyinstaller --onefile --icon "logo.ico" --add-data "assets${SEP}assets" main.py
         shell: bash
 
       - name: Rename binary (OS-specific)
