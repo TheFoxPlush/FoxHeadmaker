@@ -50,7 +50,7 @@ exe = EXE(pyz,
         debug=False,
         strip=False,
         upx=True,
-        runtime_tmpdir=user_cache_dir_from_platformdirs(),
+        runtime_tmpdir=os.path.join(user_cache_dir_from_platformdirs(),"FoxHeadmaker"),
         icon="assets/logo.ico",
         console=False
         )
