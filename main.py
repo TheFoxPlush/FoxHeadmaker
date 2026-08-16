@@ -26,6 +26,8 @@ from websockets.sync.client import connect
 from base64 import b64decode, b64encode
 from darkdetect import theme as darkdetect_theme
 from packaging import version
+import traceback
+import logging
 
 
 def asset(relative_path):
@@ -81,6 +83,14 @@ CRASH_REPORTS_DIR = _cache_folders(["crash_reports"])
 HOME_DIR = os.path.expanduser("~/Desktop")
 
 CONFIG_PATH = os.path.join(CACHE_DIR,"config.json")
+
+LOG_PATH = os.path.join(CACHE_DIR,"errors.log")
+logging.basicConfig(
+    filename=LOG_PATH,
+    level=logging.ERROR,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    encoding="utf-8",
+)
 
 HEAD_ID_CACHE_PATH = os.path.join(CACHE_DIR,"head_id_cache.json")
 if not(os.path.isfile(HEAD_ID_CACHE_PATH)):
@@ -1090,7 +1100,8 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
         return(result)
 
     except Exception as e:
-        pass
+        Notification(root,"A critical error occured grabbing the mineskin.org code.")
+        logging.exception("Error in get_head_id_from_tile")
 
 def base64_compressor_value(value):
     decoded = b64decode(value.encode("ascii")).decode("ascii")
@@ -1105,79 +1116,83 @@ def spritesheets_to_chars_process():
     global spritesheets_to_chars_progress, page_spritesheets_to_chars_prograss_bar
     global get_spritesheets_head_count
     global worker_thread
-    # make sure all heads have a code; run through mineskin or get id from cache
+    try: #giant try block to catch any error lmao
+        # make sure all heads have a code; run through mineskin or get id from cache
 
-    with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
-        head_id_cache = json_load(head_id_cache_file)
-    first_tile_base64 = None
-    with tqdm(total=get_spritesheets_head_count.get(),bar_format="{remaining}") as tqdm_bar:
-        spritesheet_i = 0
-        for spritesheet,spritesheet_tiles in spritesheet_to_chars_images.items():
-            spritesheet_i+=1
-            spritesheet_head_ids = [] #all ids will end here
-            for tiles in spritesheet_tiles:
-                current_chain = []
-                for tile in tiles:
-                    buffered = BytesIO()
-                    tile.save(buffered,format="PNG",quality=100)
-                    tile_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image in cache
-                    if not(first_tile_base64):
-                        first_tile_base64 = tile_base64
-                    if tile_base64 in head_id_cache: #head id exists!
-                        head_id = head_id_cache[tile_base64]
+        with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
+            head_id_cache = json_load(head_id_cache_file)
+        first_tile_base64 = None
+        with tqdm(total=get_spritesheets_head_count.get(),bar_format="{remaining}",disable=True) as tqdm_bar:
+            spritesheet_i = 0
+            for spritesheet,spritesheet_tiles in spritesheet_to_chars_images.items():
+                spritesheet_i+=1
+                spritesheet_head_ids = [] #all ids will end here
+                for tiles in spritesheet_tiles:
+                    current_chain = []
+                    for tile in tiles:
+                        buffered = BytesIO()
+                        tile.save(buffered,format="PNG",quality=100)
+                        tile_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image in cache
+                        if not(first_tile_base64):
+                            first_tile_base64 = tile_base64
+                        if tile_base64 in head_id_cache: #head id exists!
+                            head_id = head_id_cache[tile_base64]
+                        else:
+                            head_id = get_head_id_from_tile(tile,spritesheet)
+                            head_id_cache[tile_base64] = head_id
+                            with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
+                                json_dump(head_id_cache,head_id_cache_file,indent=3)
+                        print("NEW COMPILED HEAD")
+                        print(head_id)
+                        current_chain.append(head_id)
+                        #visual stuff
+                        spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
+                        page_spritesheets_to_chars_prograss_bar.update()
+                        tqdm_bar.update(1)
+                        remaining = (tqdm_bar.total-tqdm_bar.n)/tqdm_bar.format_dict["rate"] if tqdm_bar.format_dict["rate"] else 0
+                        page_spritesheets_to_chars_compile_time_left.configure(text=seconds_to_rounded_time(remaining))
+                        page_spritesheets_to_chars_compile_heads.configure(text=f"{tqdm_bar.n}/{get_spritesheets_head_count.get()}")
+                    spritesheet_head_ids.append(current_chain)
+                # compile all values into a given item
+                if not(chain_mode):
+                    spritesheet_head_ids = [ [x] for xs in spritesheet_head_ids for x in xs]
+                lore = []
+                for chain in spritesheet_head_ids:
+                    chain_text = []
+                    for head_id in chain:
+                        chain_text.append('{player:{properties:[{name:"textures",value:"'+head_id+'"}]}}')
+                    if len(chain_text) == 1:
+                        lore.append(chain_text[0])
                     else:
-                        head_id = get_head_id_from_tile(tile,spritesheet)
-                        head_id_cache[tile_base64] = head_id
-                        with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
-                            json_dump(head_id_cache,head_id_cache_file,indent=3)
-                    print("NEW COMPILED HEAD")
-                    print(head_id)
-                    current_chain.append(head_id)
-                    #visual stuff
-                    spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
-                    page_spritesheets_to_chars_prograss_bar.update()
-                    tqdm_bar.update(1)
-                    remaining = (tqdm_bar.total-tqdm_bar.n)/tqdm_bar.format_dict["rate"] if tqdm_bar.format_dict["rate"] else 0
-                    page_spritesheets_to_chars_compile_time_left.configure(text=seconds_to_rounded_time(remaining))
-                    page_spritesheets_to_chars_compile_heads.configure(text=f"{tqdm_bar.n}/{get_spritesheets_head_count.get()}")
-                spritesheet_head_ids.append(current_chain)
-            # compile all values into a given item
-            if not(chain_mode):
-                spritesheet_head_ids = [ [x] for xs in spritesheet_head_ids for x in xs]
-            lore = []
-            for chain in spritesheet_head_ids:
-                chain_text = []
-                for head_id in chain:
-                    chain_text.append('{player:{properties:[{name:"textures",value:"'+head_id+'"}]}}')
-                if len(chain_text) == 1:
-                    lore.append(chain_text[0])
-                else:
-                    lore.append(f"[{",".join(chain_text)}]")
-            lore = f"[{",".join(lore)}]"
-            item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
-            item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
-            item_export_3 = {
-                'data':'{components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}',
-                'image':f"data:image/png;base64,{first_tile_base64}",
-                'version':4440
-                }
-            item_export_3 = {"compilationMode":"item","id":"foxheadmaker","items":{"navbuttons":item_export_3},"lastEditedWithExtensionVersion":"0.0.6"}
-            item_export_3 = json_dumps(item_export_3,indent=3)
-            item_exports = {"give":item_export_1,"export":item_export_2,"terracotta":item_export_3}
-            page_spritesheets_to_chars_compile_spritesheets.configure(text=f"{spritesheet_i}/{get_spritesheets_spritesheet_count.get()}")
-            item_widget = ExportableItem(frame_items_scroll.content,spritesheet,item_exports)
-            frame_items_scroll_items.append(item_widget)
-            frame_items_scroll_clear_button.configure(state="normal")
-            item_widget.pack(padx=10,pady=10,side="left")
-            Notification(root,f"Finished compiling '{spritesheet}'","success")
-    page_spritesheets_to_chars_compile_spritesheets.pack_forget()
-    page_spritesheets_to_chars_compile_heads.pack_forget()
-    page_spritesheets_to_chars_compile_time_left.pack_forget()
-    page_spritesheets_to_chars_compile_button.configure(state="normal")
-    chain_mode_button.configure(state="normal")
-    get_spritesheets_button.configure(state="normal")
-    Notification(root,"Compilation finished!","success")
-    worker_thread = None
+                        lore.append(f"[{",".join(chain_text)}]")
+                lore = f"[{",".join(lore)}]"
+                item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
+                item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
+                item_export_3 = {
+                    'data':'{components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}',
+                    'image':f"data:image/png;base64,{first_tile_base64}",
+                    'version':4440
+                    }
+                item_export_3 = {"compilationMode":"item","id":"foxheadmaker","items":{"navbuttons":item_export_3},"lastEditedWithExtensionVersion":"0.0.6"}
+                item_export_3 = json_dumps(item_export_3,indent=3)
+                item_exports = {"give":item_export_1,"export":item_export_2,"terracotta":item_export_3}
+                page_spritesheets_to_chars_compile_spritesheets.configure(text=f"{spritesheet_i}/{get_spritesheets_spritesheet_count.get()}")
+                item_widget = ExportableItem(frame_items_scroll.content,spritesheet,item_exports)
+                frame_items_scroll_items.append(item_widget)
+                frame_items_scroll_clear_button.configure(state="normal")
+                item_widget.pack(padx=10,pady=10,side="left")
+                Notification(root,f"Finished compiling '{spritesheet}'","success")
+        page_spritesheets_to_chars_compile_spritesheets.pack_forget()
+        page_spritesheets_to_chars_compile_heads.pack_forget()
+        page_spritesheets_to_chars_compile_time_left.pack_forget()
+        page_spritesheets_to_chars_compile_button.configure(state="normal")
+        chain_mode_button.configure(state="normal")
+        get_spritesheets_button.configure(state="normal")
+        Notification(root,"Compilation finished!","success")
+        worker_thread = None
+    except Exception as e:
+        Notification(root,f"Critical error in compilation process: {e}","error")
+        logging.exception("Error in spritesheets_to_chars_process")
 
 page_spritesheets_to_chars_left = Frame(page_spritesheets_to_chars)
 
