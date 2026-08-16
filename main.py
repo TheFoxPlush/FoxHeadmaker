@@ -812,12 +812,13 @@ class ScrollableFrame(Frame):
         return -1 if delta > 0 else 1
 
 class ExportableItem(Button):
-    def __init__(self,master,name,item_formats,icon=assets["items/apple.png"]):
+    def __init__(self,master,name,item_formats,icon=assets["items/apple.png"],terracotta_mode="append"):
         super(ExportableItem,self).__init__(master=master,image=icon,text=name,compound="left",style="Accent.TButton",command=self.export_item)
         self.name = name
         self.item_formats = item_formats
         self.icon = icon
         self.window_loaded = False
+        self.terracotta_mode = terracotta_mode
     def export_item(self):
         if config.args["export_item_preference"]!="none":
             match config.args["export_item_preference"]:
@@ -836,7 +837,10 @@ class ExportableItem(Button):
         Button(frame,compound="left",image=assets["in_text/give.png"],text="Copy /give command",command=self.export_give,cursor="hand2").pack(padx=10,pady=10,side="left")
         Button(frame,compound="left",image=assets["in_text/codeclient.png"],text="Export to CodeClient",command=self.export_codeclient,cursor="hand2").pack(padx=10,pady=10,side="left")
         Button(frame,compound="left",image=assets["in_text/millomod.png"],text="Export to Millomod",command=self.export_millomod,cursor="hand2").pack(padx=10,pady=10,side="left")
-        Button(frame,compound="left",image=assets["in_text/terracotta.png"],text="Append to .tcil File",command=self.export_terracotta,cursor="hand2").pack(padx=10,pady=10,side="left")
+        terracotta_handle = "Append to .tcil File"
+        if self.terracotta_mode == "copy":
+            terracotta_handle = "Copy Terracotta Function to Clipboard"
+        Button(frame,compound="left",image=assets["in_text/terracotta.png"],text=terracotta_handle,command=self.export_terracotta,cursor="hand2").pack(padx=10,pady=10,side="left")
         frame.pack(padx=10,pady=10,expand=True)
         self.remember_choice = BooleanVar(value=False)
         Checkbutton(self.window,text="Select this choice automatically next time",variable=self.remember_choice).pack(padx=10,pady=10)
@@ -876,21 +880,27 @@ class ExportableItem(Button):
 
     def export_terracotta(self):
         global config
-        terracotta_file = filedialog.askopenfilename(
-            title="Select .tcil file to append to",
-            initialdir=config.args["last_tcil_file"],
-            filetypes=[("Terracotta Files", "*.tcil")]
-        )
-        if terracotta_file == "":
-            return
-        self.window_destroy("terracotta")
-        try:
-            with open(terracotta_file,"a") as tcfile:
-                tcfile.write("\n"+self.item_formats["terracotta"])
-            Notification(root,"Added content to .tcil file!","success")
-        except Exception as e:
-            Notification(root,"Couldn't write to .tcil file.","error")
-        config.set("last_tcil_file",terracotta_file.removesuffix(terracotta_file.split("/")[-1]))
+        if self.terracotta_mode == "append":
+            terracotta_file = filedialog.askopenfilename(
+                title="Select .tcil file to append to",
+                initialdir=config.args["last_tcil_file"],
+                filetypes=[("Terracotta Files", "*.tcil")]
+            )
+            if terracotta_file == "":
+                return
+            self.window_destroy("terracotta")
+            try:
+                with open(terracotta_file,"a") as tcfile:
+                    tcfile.write("\n"+self.item_formats["terracotta"])
+                Notification(root,"Added content to .tcil file!","success")
+            except Exception as e:
+                Notification(root,"Couldn't write to .tcil file.","error")
+            config.set("last_tcil_file",terracotta_file.removesuffix(terracotta_file.split("/")[-1]))
+        elif self.terracotta_mode == "copy":
+            pyperclip_copy(self.item_formats["terracotta"])
+            self.window_destroy("terracotta")
+            Notification(root,"Copied terracotta function to clipboard!","success")
+
 
 
 global config
@@ -1263,7 +1273,7 @@ Checkbutton(light_dark_mode_option,style="Switch.TCheckbutton",variable=light_da
 Label(light_dark_mode_option,image=assets["in_text/moon.png"]).pack(side="left")
 light_dark_mode_option.pack(padx=10,pady=10,side="left")
 
-ExportableItem(page_options_1,"Extraction Function",EXTRACTION_FUNCTION_ITEM_FORMATS,assets["items/ender_chest.png"]).pack(padx=10,pady=10,expand=True,side="left")
+ExportableItem(page_options_1,"Extraction Function",EXTRACTION_FUNCTION_ITEM_FORMATS,assets["items/ender_chest.png"],terracotta_mode="copy").pack(padx=10,pady=10,expand=True,side="left")
 
 page_options_2 = Frame(page_options)
 
