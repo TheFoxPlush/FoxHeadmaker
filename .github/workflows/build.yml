@@ -30,7 +30,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --icon "logo.ico" main.py
+          pyinstaller --onefile --icon "logo.ico" --add-data "assets;assets" main.py
         shell: bash
 
       - name: Rename binary (OS-specific)
