@@ -4,7 +4,6 @@ from tkinter import Label as tk_Label
 from tkinter.ttk import Notebook, Frame, Button, Label, Entry, Checkbutton, Scrollbar, Style
 import webbrowser
 import os
-from tqdm import tqdm
 import sys
 from pathlib import Path
 from pywinstyles import change_header_color as pywinstyles_change_header_color
@@ -15,7 +14,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk
 from threading import Thread
 from requests import post as requests_post
 from requests import get as requests_get
-from time import sleep, time
+from time import sleep, time, monotonic
 from io import BytesIO
 from json import load as json_load
 from json import dump as json_dump
@@ -1132,66 +1131,69 @@ def spritesheets_to_chars_process():
         with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
             head_id_cache = json_load(head_id_cache_file)
         first_tile_base64 = None
-        with tqdm(total=get_spritesheets_head_count.get(),bar_format="{remaining}",disable=True) as tqdm_bar:
-            spritesheet_i = 0
-            for spritesheet,spritesheet_tiles in spritesheet_to_chars_images.items():
-                spritesheet_i+=1
-                spritesheet_head_ids = [] #all ids will end here
-                for tiles in spritesheet_tiles:
-                    current_chain = []
-                    for tile in tiles:
-                        buffered = BytesIO()
-                        tile.save(buffered,format="PNG",quality=100)
-                        tile_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image in cache
-                        if not(first_tile_base64):
-                            first_tile_base64 = tile_base64
-                        if tile_base64 in head_id_cache: #head id exists!
-                            head_id = head_id_cache[tile_base64]
-                        else:
-                            head_id = get_head_id_from_tile(tile,spritesheet)
-                            head_id_cache[tile_base64] = head_id
-                            with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
-                                json_dump(head_id_cache,head_id_cache_file,indent=3)
-                        print("NEW COMPILED HEAD")
-                        print(head_id)
-                        current_chain.append(head_id)
-                        #visual stuff
-                        spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
-                        page_spritesheets_to_chars_prograss_bar.update()
-                        tqdm_bar.update(1)
-                        remaining = (tqdm_bar.total-tqdm_bar.n)/tqdm_bar.format_dict["rate"] if tqdm_bar.format_dict["rate"] else 0
-                        page_spritesheets_to_chars_compile_time_left.configure(text=seconds_to_rounded_time(remaining))
-                        page_spritesheets_to_chars_compile_heads.configure(text=f"{tqdm_bar.n}/{get_spritesheets_head_count.get()}")
-                    spritesheet_head_ids.append(current_chain)
-                # compile all values into a given item
-                if not(chain_mode):
-                    spritesheet_head_ids = [ [x] for xs in spritesheet_head_ids for x in xs]
-                lore = []
-                for chain in spritesheet_head_ids:
-                    chain_text = []
-                    for head_id in chain:
-                        chain_text.append('{player:{properties:[{name:"textures",value:"'+head_id+'"}]}}')
-                    if len(chain_text) == 1:
-                        lore.append(chain_text[0])
+        spritesheet_i = 0
+        start_time = monotonic()
+        for spritesheet,spritesheet_tiles in spritesheet_to_chars_images.items():
+            spritesheet_i+=1
+            spritesheet_head_ids = [] #all ids will end here
+            for tiles in spritesheet_tiles:
+                current_chain = []
+                for tile in tiles:
+                    buffered = BytesIO()
+                    tile.save(buffered,format="PNG",quality=100)
+                    tile_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image in cache
+                    if not(first_tile_base64):
+                        first_tile_base64 = tile_base64
+                    if tile_base64 in head_id_cache: #head id exists!
+                        head_id = head_id_cache[tile_base64]
                     else:
-                        lore.append(f"[{",".join(chain_text)}]")
-                lore = f"[{",".join(lore)}]"
-                item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
-                item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
-                item_export_3 = {
-                    'data':'{components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}',
-                    'image':f"data:image/png;base64,{first_tile_base64}",
-                    'version':4440
-                    }
-                item_export_3 = {"compilationMode":"item","id":"foxheadmaker","items":{"navbuttons":item_export_3},"lastEditedWithExtensionVersion":"0.0.6"}
-                item_export_3 = json_dumps(item_export_3,indent=3)
-                item_exports = {"give":item_export_1,"export":item_export_2,"terracotta":item_export_3}
-                page_spritesheets_to_chars_compile_spritesheets.configure(text=f"{spritesheet_i}/{get_spritesheets_spritesheet_count.get()}")
-                item_widget = ExportableItem(frame_items_scroll.content,spritesheet,item_exports)
-                frame_items_scroll_items.append(item_widget)
-                frame_items_scroll_clear_button.configure(state="normal")
-                item_widget.pack(padx=10,pady=10,side="left")
-                Notification(root,f"Finished compiling '{spritesheet}'","success")
+                        head_id = get_head_id_from_tile(tile,spritesheet)
+                        head_id_cache[tile_base64] = head_id
+                        with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
+                            json_dump(head_id_cache,head_id_cache_file,indent=3)
+                    print("NEW COMPILED HEAD")
+                    print(head_id)
+                    current_chain.append(head_id)
+                    #visual stuff
+                    spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
+                    page_spritesheets_to_chars_prograss_bar.update()
+                    elapsed = monotonic() - start_time
+                    rate = None
+                    if spritesheets_to_chars_progress.get() + 1 > 0:
+                        rate = (spritesheets_to_chars_progress.get()+1)/elapsed
+                    remaining = (get_spritesheets_head_count.get()-spritesheets_to_chars_progress.get())/rate if rate else 0
+                    page_spritesheets_to_chars_compile_time_left.configure(text=seconds_to_rounded_time(remaining))
+                    page_spritesheets_to_chars_compile_heads.configure(text=f"{spritesheets_to_chars_progress.get()}/{get_spritesheets_head_count.get()}")
+                spritesheet_head_ids.append(current_chain)
+            # compile all values into a given item
+            if not(chain_mode):
+                spritesheet_head_ids = [ [x] for xs in spritesheet_head_ids for x in xs]
+            lore = []
+            for chain in spritesheet_head_ids:
+                chain_text = []
+                for head_id in chain:
+                    chain_text.append('{player:{properties:[{name:"textures",value:"'+head_id+'"}]}}')
+                if len(chain_text) == 1:
+                    lore.append(chain_text[0])
+                else:
+                    lore.append(f"[{",".join(chain_text)}]")
+            lore = f"[{",".join(lore)}]"
+            item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
+            item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
+            item_export_3 = {
+                'data':'{components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}',
+                'image':f"data:image/png;base64,{first_tile_base64}",
+                'version':4440
+                }
+            item_export_3 = {"compilationMode":"item","id":"foxheadmaker","items":{"navbuttons":item_export_3},"lastEditedWithExtensionVersion":"0.0.6"}
+            item_export_3 = json_dumps(item_export_3,indent=3)
+            item_exports = {"give":item_export_1,"export":item_export_2,"terracotta":item_export_3}
+            page_spritesheets_to_chars_compile_spritesheets.configure(text=f"{spritesheet_i}/{get_spritesheets_spritesheet_count.get()}")
+            item_widget = ExportableItem(frame_items_scroll.content,spritesheet,item_exports)
+            frame_items_scroll_items.append(item_widget)
+            frame_items_scroll_clear_button.configure(state="normal")
+            item_widget.pack(padx=10,pady=10,side="left")
+            Notification(root,f"Finished compiling '{spritesheet}'","success")
         page_spritesheets_to_chars_compile_spritesheets.pack_forget()
         page_spritesheets_to_chars_compile_heads.pack_forget()
         page_spritesheets_to_chars_compile_time_left.pack_forget()
@@ -1312,12 +1314,15 @@ frame_items.pack()
 
 def verify_update():
     global update_window
-    response = requests_get(LATEST_URL_API,timeout=5)
-    latest_version = response.json()["tag_name"]
-    if latest_version and version.parse(latest_version[1:]) > version.parse(__version__):
-        update_window = popup_window("An update is available!",assets["items/ender_chest.png"])
-        Label(update_window,text="An update is available on the GitHub!").pack(padx=10,pady=10)
-        Button(update_window,text=latest_version,image=assets["in_text/codeclient.png"],compound="left",command=new_update).pack(padx=10,pady=10)
+    try:
+        response = requests_get(LATEST_URL_API,timeout=5)
+        latest_version = response.json()["tag_name"]
+        if latest_version and version.parse(latest_version[1:]) > version.parse(__version__):
+            update_window = popup_window("An update is available!",assets["items/ender_chest.png"])
+            Label(update_window,text="An update is available on the GitHub!").pack(padx=10,pady=10)
+            Button(update_window,text=latest_version,image=assets["in_text/codeclient.png"],compound="left",command=new_update).pack(padx=10,pady=10)
+    except Exception as e:
+        return
 
 def new_update():
     global update_window
