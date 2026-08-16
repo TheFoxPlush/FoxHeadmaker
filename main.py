@@ -5,7 +5,8 @@ from tkinter.ttk import Notebook, Frame, Button, Label, Entry, Checkbutton, Scro
 import webbrowser
 import os
 from tqdm import tqdm
-from sys import getwindowsversion
+import sys
+from pathlib import Path
 from pywinstyles import change_header_color as pywinstyles_change_header_color
 from pywinstyles import apply_style as pywinstyles_apply_style
 from math import floor
@@ -25,6 +26,11 @@ from websockets.sync.client import connect
 from base64 import b64decode, b64encode
 from darkdetect import theme as darkdetect_theme
 from packaging import version
+
+
+def asset(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 # SPDX-License-Id: MIT
 # Credit: Jack Giffin and platformdirs: github.com/tox-dev/platformdirs
@@ -90,9 +96,9 @@ FUNCTION_ITEM_EXPORTS = '''{DF_NBT:4671,components:{"minecraft:custom_data":{Pub
 
 SHADOW_TINT = Image.new("RGBA",(8,8),(64,64,64,255))
 
-MINECRAFT_FONT = ImageFont.truetype("assets/Minecraft.otf", 9)
+MINECRAFT_FONT = ImageFont.truetype(asset("assets/Minecraft.otf"), 9)
 
-ITEM_APPLE_IMAGE = Image.open("assets/items/apple.png")
+ITEM_APPLE_IMAGE = Image.open(asset("assets/items/apple.png"))
 
 EXTRACTION_FUNCTION_ITEM_FORMATS = {
     "give":'''player_head[custom_data={PublicBukkitValues:{"hypercube:codetemplatedata":'{"author":"TheFoxPlush","name":"&b&lFunction &3» &bfoxheadmaker_export","version":1,"code":"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"}'}},custom_name={extra:[{color:"#FFA200",shadow_color:-10341322,text:"FoxHeadmaker Extraction Function"}],italic:0b,text:""},lore=[{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Length: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"16 Blocks",underlined:0b}],text:""},{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Author: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"TheFoxPlush",underlined:0b}],text:""}],profile={id:[I;-1551409397,-611758825,-1137461988,998522893],name:"TheFoxPlush",properties:[{name:"textures",value:"ewogICJ0aW1lc3RhbXAiIDogMTc3Mzk0MzMxMDU5NSwKICAicHJvZmlsZUlkIiA6ICJhMzg3NWYwYmRiODk0ZDE3YmMzM2I1MWMzYjg0NDAwZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVGb3hQbHVzaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMWQ1Nzg3NTFhYzRkMjEzOWY4ODA3ZWE1NWM1MmNhM2ZhYTM3Y2M0NGU3NmMwOTBjMWYzOWZhNDA2NTQ2NzgxIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0sCiAgICAiQ0FQRSIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhkZTRhODE2ODhhZDE4YjQ5ZTczNWEyNzNlMDg2YzE4ZjFlMzk2Njk1NjEyM2NjYjU3NDAzNGMwNmY1ZDMzNiIKICAgIH0KICB9Cn0="}]}]''',
@@ -117,10 +123,10 @@ def popup_window(name,icon):
 
 root = Tk()
 root.title("FoxHeadmaker v2.0")
-root.iconbitmap("logo.ico")
+root.iconbitmap(asset("assets/logo.ico"))
 
 assets = {}
-for path, _, images in os.walk("assets"):
+for path, _, images in os.walk(asset("assets")):
     for image in images:
         if image.endswith(".png"):
             asset_path = path+"\\"+image
@@ -129,13 +135,13 @@ for path, _, images in os.walk("assets"):
                 photo_image = photo_image.zoom(3,3)
             if "items" in asset_path:
                 photo_image = photo_image.zoom(2,2)
-            assets[asset_path.replace("\\","/").replace("assets/","")] = photo_image
+            assets[str(Path(os.path.dirname(asset_path)).name)+"/"+str(Path(asset_path).name)] = photo_image
 
 def hyperlink(url):
     webbrowser.open_new(url)
 
 def apply_theme_to_titlebar(root): #from https://github.com/rdbende/Sun-Valley-ttk-theme
-    version = getwindowsversion()
+    version = sys.getwindowsversion()
 
     if version.major == 10 and version.build >= 22000:
         # Set the title bar color to the background color on Windows 11 for better appearance
@@ -171,6 +177,8 @@ def fuse_images(images):
     for offset,image in images.items():
         new_image.paste(image,offset)
     return(new_image)
+
+print(assets.keys())
 
 class Notification:
     _notifications = []
@@ -661,8 +669,8 @@ class CustomProgressbar(Label):
         self.update()
     def update(self):
         print(f"Updating progressbar: {self.variable.get()}/{self.max}")
-        image = Image.open("assets/progress_bar/empty.png").convert("RGBA")
-        image_top = Image.open("assets/progress_bar/full.png").convert("RGBA")
+        image = Image.open(asset("assets/progress_bar/empty.png")).convert("RGBA")
+        image_top = Image.open(asset("assets/progress_bar/full.png")).convert("RGBA")
         image.paste(image_top.crop((0,0,round(self.variable.get()/self.max*image_top.size[0]),image_top.size[1])),(0,0))
         image = ImageTk.PhotoImage(image)
         image = image._PhotoImage__photo.zoom(2)
