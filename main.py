@@ -872,7 +872,7 @@ class ExportableItem(Button):
         Notification(root,"Sending to CodeClient...","info")
         try:
             with connect("ws://localhost:31375") as websocket:
-                websocket.send(json_dumps({"type":"item","source":"FoxHeadmaker","data":f"{self.item_formats["export"]}"}))
+                websocket.send(json_dumps(f"give {self.item_formats["export"]}"))
             Notification(root,"Item sent to CodeClient","success")
         except Exception as e:
             Notification(root,"Failed to send item to CodeClient.","error")
