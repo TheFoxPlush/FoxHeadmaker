@@ -889,8 +889,11 @@ class ExportableItem(Button):
                 return
             self.window_destroy("terracotta")
             try:
-                with open(terracotta_file,"a") as tcfile:
-                    tcfile.write("\n"+self.item_formats["terracotta"])
+                with open(terracotta_file,"r") as tcfile:
+                    current_tcil = json_load(tcfile)
+                current_tcil["items"][self.name] = self.item_formats["terracotta"]
+                with open(terracotta_file,"w") as tcfile:
+                    json_dump(current_tcil,tcfile,indent=3)
                 Notification(root,"Added content to .tcil file!","success")
             except Exception as e:
                 Notification(root,"Couldn't write to .tcil file.","error")
@@ -1181,12 +1184,10 @@ def spritesheets_to_chars_process():
             item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
             item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
             item_export_3 = {
-                'data':'{components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}',
+                'data':'{components:{"custom_name":{color:"#FFA200",bold:true,shadow_color:-10341322,text:"'+spritesheet+'"},"lore":'+lore+'}}',
                 'image':f"data:image/png;base64,{first_tile_base64}",
                 'version':4440
                 }
-            item_export_3 = {"compilationMode":"item","id":"foxheadmaker","items":{"navbuttons":item_export_3},"lastEditedWithExtensionVersion":"0.0.6"}
-            item_export_3 = json_dumps(item_export_3,indent=3)
             item_exports = {"give":item_export_1,"export":item_export_2,"terracotta":item_export_3}
             page_spritesheets_to_chars_compile_spritesheets.configure(text=f"{spritesheet_i}/{get_spritesheets_spritesheet_count.get()}")
             item_widget = ExportableItem(frame_items_scroll.content,spritesheet,item_exports)
