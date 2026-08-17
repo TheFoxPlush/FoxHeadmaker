@@ -6,8 +6,9 @@ import webbrowser
 import os
 import sys
 from pathlib import Path
-from pywinstyles import change_header_color as pywinstyles_change_header_color
-from pywinstyles import apply_style as pywinstyles_apply_style
+if sys.platform == "win32":
+    from pywinstyles import change_header_color as pywinstyles_change_header_color
+    from pywinstyles import apply_style as pywinstyles_apply_style
 from math import floor
 from sv_ttk import set_theme, get_theme
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk
@@ -25,7 +26,6 @@ from websockets.sync.client import connect
 from base64 import b64decode, b64encode
 from darkdetect import theme as darkdetect_theme
 from packaging import version
-import traceback
 import logging
 
 
@@ -150,17 +150,18 @@ def hyperlink(url):
     webbrowser.open_new(url)
 
 def apply_theme_to_titlebar(root): #from https://github.com/rdbende/Sun-Valley-ttk-theme
-    version = sys.getwindowsversion()
+    if sys.platform == "win32":
+        version = sys.getwindowsversion()
 
-    if version.major == 10 and version.build >= 22000:
-        # Set the title bar color to the background color on Windows 11 for better appearance
-        pywinstyles_change_header_color(root, "#1c1c1c" if get_theme() == "dark" else "#fafafa")
-    elif version.major == 10:
-        pywinstyles_apply_style(root, "dark" if get_theme() == "dark" else "normal")
+        if version.major == 10 and version.build >= 22000:
+            # Set the title bar color to the background color on Windows 11 for better appearance
+            pywinstyles_change_header_color(root, "#1c1c1c" if get_theme() == "dark" else "#fafafa")
+        elif version.major == 10:
+            pywinstyles_apply_style(root, "dark" if get_theme() == "dark" else "normal")
 
-        # A hacky way to update the title bar's color on Windows 10 (it doesn't update instantly like on Windows 11)
-        root.wm_attributes("-alpha", 0.99)
-        root.wm_attributes("-alpha", 1)
+            # A hacky way to update the title bar's color on Windows 10 (it doesn't update instantly like on Windows 11)
+            root.wm_attributes("-alpha", 0.99)
+            root.wm_attributes("-alpha", 1)
 
 def change_theme():
     # NOTE: The theme's real name is azure-<mode>
