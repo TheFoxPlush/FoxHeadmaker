@@ -1096,7 +1096,7 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
                     Notification(root,"Your api key is likely incorrect. Shutting down task...","error")
                     return(None)
                 else:
-                    Notification(root,f"Error from mineskin.org (response.status_code). Trying again in 5s...")
+                    Notification(root,f"Error from mineskin.org ({response.status_code}). Trying again in 5s...")
                     sleep(5)
                     continue
             break
