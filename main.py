@@ -1181,10 +1181,10 @@ def spritesheets_to_chars_process():
                 else:
                     lore.append(f"[{",".join(chain_text)}]")
             lore = f"[{",".join(lore)}]"
-            item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
-            item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
+            item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"italic":false,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
+            item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"italic":false,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
             item_export_3 = {
-                'data':'{components:{"custom_name":{color:"#FFA200",bold:true,shadow_color:-10341322,text:"'+spritesheet+'"},"lore":'+lore+'}}',
+                'data':'{components:{"custom_name":{color:"#FFA200",bold:true,italic:false,shadow_color:-10341322,text:"'+spritesheet+'"},"lore":'+lore+'}}',
                 'image':f"data:image/png;base64,{first_tile_base64}",
                 'version':4440
                 }
