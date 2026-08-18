@@ -141,7 +141,7 @@ assets = {}
 for path, _, images in os.walk(asset("assets")):
     for image in images:
         if image.endswith(".png"):
-            asset_path = path+"\\"+image
+            asset_path = os.path.join(path,image)
             photo_image = PhotoImage(file=asset_path)
             if "in_text" in asset_path:
                 photo_image = photo_image.zoom(3,3)
