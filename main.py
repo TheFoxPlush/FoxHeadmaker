@@ -659,7 +659,8 @@ class Config():
             "last_file_dialog":HOME_DIR,
             "last_tcil_file":HOME_DIR,
             "dark": True if darkdetect_theme() == "dark" else False,
-            "export_item_preference":"none"
+            "export_item_preference":"none",
+            "remove_extension":False
         }
         with open(self.path,"r") as configfile:
             set_config_args = json_load(configfile)
@@ -1011,6 +1012,8 @@ def get_spritesheets():
     spritesheet_to_chars_images = {} #key: spritesheet name, value: list of sublists of heads sorted through chains
     for spritesheet in spritesheets:
         spritesheet_name = spritesheet.split("/")[-1]
+        if remove_extension.get():
+            spritesheet_name = os.path.splitext(spritesheet_name)[0]
         current_chain = []
         spritesheet_images = []
         try:
@@ -1300,8 +1303,13 @@ if config.args["export_item_preference"]!="none":
     reset_preference_button.configure(state="normal")
 reset_preference_button.pack(padx=10,pady=10,side="left")
 
+toggleable_options_frame = Frame(page_options, style='Card.TFrame', padding=(5, 6, 7, 8))
+remove_extension = BooleanVar(value=config.args["remove_extension"])
+Checkbutton(toggleable_options_frame,variable=remove_extension,text="Remove file extension for spritesheet names",command=lambda *args: config.set("remove_extension",remove_extension.get())).pack(padx=10,pady=10)
+
 page_options_1.pack(padx=10,pady=10)
 page_options_2.pack(padx=10,pady=10)
+toggleable_options_frame.pack(padx=10,pady=10)
 
 notebook.add(page_spritesheets_to_chars, text='Spritesheets ➤ Chars')
 notebook.add(page_options, text='Options')
