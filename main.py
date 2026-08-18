@@ -27,6 +27,7 @@ from base64 import b64decode, b64encode
 from darkdetect import theme as darkdetect_theme
 from packaging import version
 import logging
+from playsound3 import playsound
 
 
 def asset(relative_path):
@@ -201,18 +202,22 @@ class Notification:
         "success": {
             "accent": "#2ecc71",
             "icon": assets["in_text/success.png"],
+            "sound":asset(os.path.join("assets","sounds","success.wav"))
         },
         "error": {
             "accent": "#e74c3c",
             "icon": assets["in_text/error.png"],
+            "sound":asset(os.path.join("assets","sounds","error.wav"))
         },
         "warning": {
             "accent": "#f1c40f",
             "icon": assets["in_text/warning.png"],
+            "sound":asset(os.path.join("assets","sounds","warning.wav"))
         },
         "info": {
             "accent": "#3498db",
             "icon": assets["in_text/info.png"],
+            "sound":asset(os.path.join("assets","sounds","info.wav"))
         },
     }
 
@@ -249,6 +254,8 @@ class Notification:
             self.notification_type,
             self.COLORS["info"]
         )
+
+        playsound(colors["sound"],block=False)
 
         self.window = Toplevel(self.parent)
         self.window.overrideredirect(True)
@@ -908,9 +915,7 @@ class ExportableItem(Button):
         elif self.terracotta_mode == "copy":
             pyperclip_copy(self.item_formats["terracotta"])
             self.window_destroy("terracotta")
-            Notification(root,"Copied terracotta function to clipboard!","success")
-
-
+            Notification(root,"Copied terracotta function to clipboard!","success")      
 
 global config
 config = Config()
@@ -1038,7 +1043,7 @@ def get_spritesheets():
                             current_chain = []
                         continue
                     if tile.getextrema()[-1][0] < 255 and not(transparency_warning): #if tile contains transparency
-                        Notification(root,"Transparency within a head cannot be handled in this format. It is recommended for tiles to not have any transparency to avoid unpredictable behavior.")
+                        Notification(root,"Transparency within a head cannot be handled in this format. It is recommended for tiles to not have any transparency to avoid unpredictable behavior.","error")
                         transparency_warning = True
                     head_count+=1
                     current_chain.append(tile)
@@ -1056,9 +1061,9 @@ def get_spritesheets():
     spritesheets_to_chars_progress.set(0)
     get_spritesheets_estimated_time.set("~"+seconds_to_rounded_time(MIN_REQ_TIME*head_count))
     if get_spritesheets_spritesheet_count.get() == 1:
-        Notification(root,f"Loaded 1 spritesheet.","success")
+        Notification(root,f"Loaded 1 spritesheet.","info")
     else:
-        Notification(root,f"Loaded {get_spritesheets_spritesheet_count.get()} spritesheets.","success")
+        Notification(root,f"Loaded {get_spritesheets_spritesheet_count.get()} spritesheets.","info")
     print(spritesheet_to_chars_images)
     make_previews()
 

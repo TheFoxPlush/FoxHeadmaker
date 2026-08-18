@@ -7,3 +7,4 @@ Requests==2.34.2
 sv_ttk==2.6.1
 tqdm==4.70.0
 websockets==17.0.1
+playsound3==3.3.2
