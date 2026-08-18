@@ -82,6 +82,9 @@ CRASH_REPORTS_DIR = _cache_folders(["crash_reports"])
 HOME_DIR = os.path.expanduser("~/Desktop")
 
 CONFIG_PATH = os.path.join(CACHE_DIR,"config.json")
+if not(os.path.isfile(CONFIG_PATH)):
+    with open(CONFIG_PATH,"w") as configfile:
+        json_dump({},configfile)
 
 LOG_PATH = os.path.join(CACHE_DIR,"errors.log")
 logging.basicConfig(
@@ -164,7 +167,6 @@ def apply_theme_to_titlebar(root): #from https://github.com/rdbende/Sun-Valley-t
             root.wm_attributes("-alpha", 1)
 
 def change_theme():
-    # NOTE: The theme's real name is azure-<mode>
     if config.args["dark"]:
         # Set light theme
         set_theme("light")
