@@ -886,7 +886,7 @@ class ExportableItem(Button):
         Notification(root,"Sending to CodeClient...","info")
         try:
             with connect("ws://localhost:31375") as websocket:
-                websocket.send(json_dumps(f"give {self.item_formats["export"]}"))
+                websocket.send(f"give {self.item_formats["export"]}")
             Notification(root,"Item sent to CodeClient","success")
         except Exception as e:
             Notification(root,"Failed to send item to CodeClient.","error")
@@ -1200,7 +1200,7 @@ def spritesheets_to_chars_process():
             item_export_1 = 'apple[lore='+lore+',custom_name={"color":"#FFA200","bold":true,"italic":false,"shadow_color":-10341322,"text":"'+spritesheet+'"}]'
             item_export_2 = '{count:1,id:"minecraft:apple",components:{"custom_name":{"color":"#FFA200","bold":true,"italic":false,"shadow_color":-10341322,"text":"'+spritesheet+'"},"lore":'+lore+'}}'
             item_export_3 = {
-                'data':'{components:{"custom_name":{color:"#FFA200",bold:true,italic:false,shadow_color:-10341322,text:"'+spritesheet+'"},"lore":'+lore+'}}',
+                'data':'{components:{"custom_name":{color:"#FFA200",bold:true,italic:false,shadow_color:-10341322,text:"'+spritesheet+'"},"lore":'+lore+'},count:1,id:"minecraft:apple"}',
                 'image':f"data:image/png;base64,{first_tile_base64}",
                 'version':4440
                 }
