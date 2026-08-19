@@ -1,5 +1,4 @@
 <h1 align="center">
-    <img src="./.github/assets/logo.png", width=100>
     <img src="./.github/assets/title.png", width=500>
 </h1>
 
@@ -13,9 +12,15 @@
   </a>
 </h4>
 
+## Version 2.0.0!
+
+A new version has arrived! We've switched over from a TUI to a GUI for a cleaner look and easier compatibility with certain versions of Windows, and added plenty of new features, such as compiling multiple spritesheets at once, item previews, Terracotta compatibility, and more!
+
+A full tutorial video exploring the new changes will come when I get the time for it.
+
 ## Introduction
 
-FoxHeadmaker is a [TUI](https://en.wikipedia.org/wiki/Text-based_user_interface) that allows players of [DiamondFire](https://https://mcdiamondfire.com/) to convert any [spritesheet](https://en.wikipedia.org/wiki/Texture_atlas) that they want into a series of 8x8 symbols stored in Styled Texts, that can be used in any textual context when coding a plot, _without a resource pack_.
+FoxHeadmaker is an app that allows players of [DiamondFire](https://https://mcdiamondfire.com/) to convert any [spritesheet](https://en.wikipedia.org/wiki/Texture_atlas) that they want into a series of 8x8 symbols stored in Styled Texts, that can be used in any textual context when coding a plot, **without a resource pack** and **without any paid rank**.
 
 <p align="center">
 <img src=".github/assets/showcases/achievement_page.png" alt="Showcase of a book stylized with FoxHeadmaker heads." style="box-shadow:3px 3px 3px gray;">
@@ -33,7 +38,7 @@ My hope in publishing tools to make this technology easier to handle for any pla
 
 ## Usage
 
-A video showcasing how to use the tool is available below.
+A new version of the program is currently available, and a specific tutorial video for it hasn't been recorded yet; you may still watch the old video in the mean time to get an understanding of the program.
 
 <a href="https://www.youtube.com/watch?v=G18_ZOQWhxA">
 <img src=".github/assets/video_thumbnail.png">
