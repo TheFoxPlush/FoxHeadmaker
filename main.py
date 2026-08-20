@@ -1185,7 +1185,7 @@ def spritesheets_to_chars_process():
                     page_spritesheets_to_chars_compile_heads.configure(text=f"{spritesheets_to_chars_progress.get()}/{get_spritesheets_head_count.get()}")
                 spritesheet_head_ids.append(current_chain)
             # compile all values into a given item
-            if not(chain_mode):
+            if not(chain_mode.get()):
                 spritesheet_head_ids = [ [x] for xs in spritesheet_head_ids for x in xs]
             lore = []
             for chain in spritesheet_head_ids:
