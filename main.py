@@ -9,7 +9,7 @@ from pathlib import Path
 if sys.platform == "win32":
     from pywinstyles import change_header_color as pywinstyles_change_header_color
     from pywinstyles import apply_style as pywinstyles_apply_style
-from math import floor
+from math import floor, ceil, sqrt
 from sv_ttk import set_theme, get_theme
 from PIL import Image, ImageChops, ImageDraw, ImageFont, ImageTk
 from threading import Thread
@@ -128,6 +128,13 @@ EXTRACTION_FUNCTION_ITEM_FORMATS = {
     return headchar_deposity;
 }'''
 }
+
+toggleable_options = {
+            "remove_extension":["Remove file extension for spritesheet names",False],
+            "show_purple_tint":["Show natural lore purple tint on preview",False],
+            "inverse_scroll_items":["Invert item scrolling direction",False],
+            "spritesheet_notification":["Notify when individual spritesheets are complete",True]
+            }
 
 def popup_window(name,icon):
     window = Toplevel()
@@ -669,11 +676,9 @@ class Config():
             "last_tcil_file":HOME_DIR,
             "dark": True if darkdetect_theme() == "dark" else False,
             "export_item_preference":"none",
-            "remove_extension":False,
-            "show_purple_tint":False,
-            "inverse_scroll_items":False,
-            "spritesheet_notification":True
         }
+        for key,values in toggleable_options.items():
+            self.args[key] = values[1]
         with open(self.path,"r") as configfile:
             set_config_args = json_load(configfile)
         for key,value in set_config_args.items():
@@ -807,7 +812,7 @@ class ScrollableFrame(Frame):
 
     def _on_mousewheel(self, event):
         self.canvas.xview_scroll(
-            self._wheel_units(event.delta if inverse_scroll_items.get() else event.delta*-1),
+            self._wheel_units(event.delta if option_vars["inverse_scroll_items"].get() else event.delta*-1),
             "units",
         )
 
@@ -971,7 +976,7 @@ def make_preview(heads_previewed,spritesheet_name):
     lore_image_draw.text((4,4-name_y_offset),spritesheet_name,font=MINECRAFT_FONT,fill="#d1690a")
     for y,heads in enumerate(heads_previewed):
         for x,head in enumerate(heads):
-            if show_purple_tint.get():
+            if option_vars["show_purple_tint"].get():
                 head = ImageChops.multiply(head,LORE_TINT)
             shadow = ImageChops.multiply(head,SHADOW_TINT)
             lore_image.paste(shadow,(x*8+5,y*10+name_height+8))
@@ -1024,7 +1029,7 @@ def get_spritesheets():
     spritesheet_to_chars_images = {} #key: spritesheet name, value: list of sublists of heads sorted through chains
     for spritesheet in spritesheets:
         spritesheet_name = spritesheet.split("/")[-1]
-        if remove_extension.get():
+        if option_vars["remove_extension"].get():
             spritesheet_name = os.path.splitext(spritesheet_name)[0]
         current_chain = []
         spritesheet_images = []
@@ -1213,7 +1218,7 @@ def spritesheets_to_chars_process():
             frame_items_scroll_items.append(item_widget)
             frame_items_scroll_clear_button.configure(state="normal")
             item_widget.pack(padx=10,pady=10,side="left")
-            if spritesheet_notification.get():
+            if option_vars["spritesheet_notification"].get():
                 Notification(root,f"Finished compiling '{spritesheet}'","success")
         page_spritesheets_to_chars_compile_spritesheets.pack_forget()
         page_spritesheets_to_chars_compile_heads.pack_forget()
@@ -1318,14 +1323,14 @@ if config.args["export_item_preference"]!="none":
 reset_preference_button.pack(padx=10,pady=10,side="left")
 
 toggleable_options_frame = Frame(page_options, style='Card.TFrame', padding=(5, 6, 7, 8))
-remove_extension = BooleanVar(value=config.args["remove_extension"])
-Checkbutton(toggleable_options_frame,variable=remove_extension,text="Remove file extension for spritesheet names",command=lambda *args: config.set("remove_extension",remove_extension.get())).grid(padx=10,pady=10,row=0,column=0)
-show_purple_tint = BooleanVar(value=config.args["show_purple_tint"])
-Checkbutton(toggleable_options_frame,variable=show_purple_tint,text="Show natural lore purple tint on preview",command=lambda *args: config.set("show_purple_tint",show_purple_tint.get())).grid(padx=10,pady=10,row=1,column=0)
-inverse_scroll_items = BooleanVar(value=config.args["inverse_scroll_items"])
-Checkbutton(toggleable_options_frame,variable=inverse_scroll_items,text="Invert item scrolling direction",command=lambda *args: config.set("inverse_scroll_items",inverse_scroll_items.get())).grid(padx=10,pady=10,row=0,column=1)
-spritesheet_notification = BooleanVar(value=config.args["spritesheet_notification"])
-Checkbutton(toggleable_options_frame,variable=spritesheet_notification,text="Notify when individual spritesheets are complete",command=lambda *args: config.set("spritesheet_notification",spritesheet_notification.get())).grid(padx=10,pady=10,row=1,column=1)
+toggleable_options_columns = ceil(sqrt(len(toggleable_options)))
+option_vars = {}
+i = 0
+for option,values in toggleable_options.items():
+    option_vars[option] = BooleanVar(value=config.args[option])
+    Checkbutton(toggleable_options_frame,variable=option_vars[option],text=values[0],command=lambda *args: config.set(option,option_vars[option].get())).grid(padx=10,pady=10,row=i//toggleable_options_columns,column=i%toggleable_options_columns)
+    i+=1
+
 page_options_1.pack(padx=10,pady=10)
 page_options_2.pack(padx=10,pady=10)
 toggleable_options_frame.pack(padx=10,pady=10)
