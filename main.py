@@ -671,7 +671,8 @@ class Config():
             "export_item_preference":"none",
             "remove_extension":False,
             "show_purple_tint":False,
-            "inverse_scroll_items":False
+            "inverse_scroll_items":False,
+            "spritesheet_notification":True
         }
         with open(self.path,"r") as configfile:
             set_config_args = json_load(configfile)
@@ -1211,7 +1212,8 @@ def spritesheets_to_chars_process():
             frame_items_scroll_items.append(item_widget)
             frame_items_scroll_clear_button.configure(state="normal")
             item_widget.pack(padx=10,pady=10,side="left")
-            Notification(root,f"Finished compiling '{spritesheet}'","success")
+            if spritesheet_notification.get():
+                Notification(root,f"Finished compiling '{spritesheet}'","success")
         page_spritesheets_to_chars_compile_spritesheets.pack_forget()
         page_spritesheets_to_chars_compile_heads.pack_forget()
         page_spritesheets_to_chars_compile_time_left.pack_forget()
@@ -1321,6 +1323,8 @@ show_purple_tint = BooleanVar(value=config.args["show_purple_tint"])
 Checkbutton(toggleable_options_frame,variable=show_purple_tint,text="Show natural lore purple tint on preview",command=lambda *args: config.set("show_purple_tint",show_purple_tint.get())).pack(padx=10,pady=10)
 inverse_scroll_items = BooleanVar(value=config.args["inverse_scroll_items"])
 Checkbutton(toggleable_options_frame,variable=inverse_scroll_items,text="Invert item scrolling direction",command=lambda *args: config.set("inverse_scroll_items",inverse_scroll_items.get())).pack(padx=10,pady=10)
+spritesheet_notification = BooleanVar(value=config.args["spritesheet_notification"])
+Checkbutton(toggleable_options_frame,variable=spritesheet_notification,text="Notify when individual spritesheets are complete",command=lambda *args: config.set("spritesheet_notification",spritesheet_notification.get())).pack(padx=10,pady=10)
 page_options_1.pack(padx=10,pady=10)
 page_options_2.pack(padx=10,pady=10)
 toggleable_options_frame.pack(padx=10,pady=10)
