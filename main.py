@@ -670,7 +670,8 @@ class Config():
             "dark": True if darkdetect_theme() == "dark" else False,
             "export_item_preference":"none",
             "remove_extension":False,
-            "show_purple_tint":False
+            "show_purple_tint":False,
+            "inverse_scroll_items":False
         }
         with open(self.path,"r") as configfile:
             set_config_args = json_load(configfile)
@@ -805,7 +806,7 @@ class ScrollableFrame(Frame):
 
     def _on_mousewheel(self, event):
         self.canvas.xview_scroll(
-            self._wheel_units(event.delta*-1),
+            self._wheel_units(event.delta if inverse_scroll_items.get() else event.delta*-1),
             "units",
         )
 
@@ -1318,6 +1319,8 @@ remove_extension = BooleanVar(value=config.args["remove_extension"])
 Checkbutton(toggleable_options_frame,variable=remove_extension,text="Remove file extension for spritesheet names",command=lambda *args: config.set("remove_extension",remove_extension.get())).pack(padx=10,pady=10)
 show_purple_tint = BooleanVar(value=config.args["show_purple_tint"])
 Checkbutton(toggleable_options_frame,variable=show_purple_tint,text="Show natural lore purple tint on preview",command=lambda *args: config.set("show_purple_tint",show_purple_tint.get())).pack(padx=10,pady=10)
+inverse_scroll_items = BooleanVar(value=config.args["inverse_scroll_items"])
+Checkbutton(toggleable_options_frame,variable=inverse_scroll_items,text="Invert item scrolling direction",command=lambda *args: config.set("inverse_scroll_items",inverse_scroll_items.get())).pack(padx=10,pady=10)
 page_options_1.pack(padx=10,pady=10)
 page_options_2.pack(padx=10,pady=10)
 toggleable_options_frame.pack(padx=10,pady=10)
