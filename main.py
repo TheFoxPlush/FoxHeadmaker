@@ -883,26 +883,26 @@ class ExportableItem(Button):
         Thread(target=self.export_millomod_async).start()
 
     def export_millomod_async(self):
-        Notification(root,"Sending to MilloMod...","info")
+        Notification(root,f"Sending '{self.name}' to MilloMod...","info")
         try:
             with connect("ws://localhost:31321") as websocket:
                 websocket.send(json_dumps({"type":"item","source":"FoxHeadmaker","data":f"{self.item_formats["export"]}"}))
-            Notification(root,"Item sent to MilloMod","success")
+            Notification(root,f"Item '{self.name}' sent to MilloMod","success")
         except Exception as e:
-            Notification(root,"Failed to send item to MilloMod.","error")
+            Notification(root,f"Failed to send item '{self.name}' to MilloMod.","error")
 
     def export_codeclient(self):
         self.window_destroy("codeclient")
         Thread(target=self.export_codeclient_async).start()
 
     def export_codeclient_async(self):
-        Notification(root,"Sending to CodeClient...","info")
+        Notification(root,f"Sending '{self.name}' to CodeClient...","info")
         try:
             with connect("ws://localhost:31375") as websocket:
                 websocket.send(f"give {self.item_formats["export"]}")
-            Notification(root,"Item sent to CodeClient","success")
+            Notification(root,f"Item '{self.name}' sent to CodeClient","success")
         except Exception as e:
-            Notification(root,"Failed to send item to CodeClient.","error")
+            Notification(root,f"Failed to send item '{self.name}' to CodeClient.","error")
 
     def export_terracotta(self):
         global config
