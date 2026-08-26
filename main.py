@@ -1146,6 +1146,7 @@ def spritesheets_to_chars_process():
     global spritesheets_to_chars_progress, page_spritesheets_to_chars_prograss_bar
     global get_spritesheets_head_count
     global worker_thread
+    spritesheets_to_chars_progress.set(0)
     try: #giant try block to catch any error lmao
         # make sure all heads have a code; run through mineskin or get id from cache
 
