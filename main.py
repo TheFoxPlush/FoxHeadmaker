@@ -880,6 +880,9 @@ class ExportableItem(Button):
 
     def export_millomod(self):
         self.window_destroy("millomod")
+        Thread(target=self.export_millomod_async).start()
+
+    def export_millomod_async(self):
         Notification(root,"Sending to MilloMod...","info")
         try:
             with connect("ws://localhost:31321") as websocket:
@@ -890,6 +893,9 @@ class ExportableItem(Button):
 
     def export_codeclient(self):
         self.window_destroy("codeclient")
+        Thread(target=self.export_codeclient_async).start()
+
+    def export_codeclient_async(self):
         Notification(root,"Sending to CodeClient...","info")
         try:
             with connect("ws://localhost:31375") as websocket:
