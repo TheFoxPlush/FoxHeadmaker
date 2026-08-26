@@ -60,7 +60,7 @@ def user_cache_dir_from_platformdirs():
     # For all Linux and *nix including Haiku, OpenIndiana, and the BSDs:
     return getenv("XDG_CACHE_HOME","").strip() or path.expanduser("~/.cache")
 
-__version__ = "2.0.0"
+__version__ = "2.0.1"
 
 LATEST_URL_API = "https://api.github.com/repos/TheFoxPlush/FoxHeadmaker/releases/latest"
 LATEST_URL = "https://github.com/TheFoxPlush/FoxHeadmaker/releases/latest"
