@@ -1149,10 +1149,10 @@ def spritesheets_to_chars_process():
 
         with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
             head_id_cache = json_load(head_id_cache_file)
-        first_tile_base64 = None
         spritesheet_i = 0
         start_time = monotonic()
         for spritesheet,spritesheet_tiles in spritesheet_to_chars_images.items():
+            first_tile_base64 = None
             spritesheet_i+=1
             spritesheet_head_ids = [] #all ids will end here
             for tiles in spritesheet_tiles:
