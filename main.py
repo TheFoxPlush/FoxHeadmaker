@@ -200,8 +200,6 @@ def fuse_images(images):
         new_image.paste(image,offset)
     return(new_image)
 
-print(assets.keys())
-
 class Notification:
     _notifications = []
 
@@ -950,6 +948,7 @@ else:
 apply_theme_to_titlebar(root)
 
 notebook = Notebook(root)
+
 page_spritesheets_to_chars = Frame(notebook)
 page_cache = Frame(notebook)
 page_options = Frame(notebook)
@@ -1192,6 +1191,7 @@ def spritesheets_to_chars_process():
                             json_dump(head_id_cache,head_id_cache_file,indent=3)
                     print("NEW COMPILED HEAD")
                     print(head_id)
+                    print(f"key: {tile_base64}")
                     current_chain.append(head_id)
                     #visual stuff
                     spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
@@ -1290,6 +1290,87 @@ page_spritesheets_to_chars_left_above.pack(padx=10,pady=10)
 page_spritesheets_to_chars_left_below.pack(padx=10,pady=10)
 page_spritesheets_to_chars_left.pack(padx=10,pady=10,side="left")
 page_spritesheets_to_chars_right.pack(padx=10,pady=10,side="left")
+
+#Cache Page
+
+cache_header = Frame(page_cache, style='Card.TFrame', padding=(5, 6, 7, 8))
+cache_size = Label(cache_header,image=assets["in_text/folder.png"],compound="left")
+cache_head_count = Label(cache_header,image=assets["in_text/head.png"],compound="left")
+
+def size_of_file_format(num, suffix="B"): #thanks to https://stackoverflow.com/a/1094933
+    for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
+        if abs(num) < 1024.0:
+            return f"{num:3.1f}{unit}{suffix}"
+        num /= 1024.0
+    return f"{num:.1f}Yi{suffix}"
+
+def update_cache_size():
+    cache_file_size = os.path.getsize(HEAD_ID_CACHE_PATH)
+    cache_size.configure(text=str(size_of_file_format(cache_file_size)))
+    with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
+        cache_head_count.configure(text=str(len(json_load(head_id_cache_file))))
+
+update_cache_size()
+
+cache_size.pack(padx=10,pady=10,side="left")
+cache_head_count.pack(padx=10,pady=10,side="left")
+
+cache_header.pack(padx=10,pady=10)
+
+def check_import_foxheadmaker1(): #check for old cache values from foxheadmaker1
+    global foxheadmaker1_popup
+    if os.path.exists(os.path.join(CACHE_DIR,"heads")) or os.path.exists(os.path.join(CACHE_DIR,"values")):
+        foxheadmaker1_popup = popup_window("FoxHeadmaker v1 cache detected!",assets["in_text/folder.png"])
+        Label(foxheadmaker1_popup,text="You can fuse your old FoxHeadmaker v1 cache with the new one for faster compiling on heads you've generated before.").pack(padx=10,pady=10)
+        button_list = Frame(foxheadmaker1_popup)
+        Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(destroy=False)).pack(padx=10,pady=10,side="left")
+        Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse()).pack(padx=10,pady=10,side="left")
+        button_list.pack(padx=10,pady=10)
+
+def foxheadmaker1_fuse(destroy=True):
+    global foxheadmaker1_popup
+    with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
+        head_id_cache = json_load(head_id_cache_file)
+    heads_added = 0
+    if os.path.exists(os.path.join(CACHE_DIR,"values")) and os.path.exists(os.path.join(CACHE_DIR,"heads")):
+        print("both folders exist")
+        for value_file in os.listdir(os.path.join(CACHE_DIR,"values")):
+            print(f"extracting values from {value_file}")
+            with open(os.path.join(CACHE_DIR,"values",value_file),"r") as value_file_file:
+                values = json_load(value_file_file)
+            for head_name,value in values.items():
+                head_name = head_name.removeprefix(os.path.splitext(value_file)[0]+"_")
+                #here we assume the equivalent of the head in heads folder exists, otherwise we skip; because we'd have to fetch from minecraft...
+                if os.path.exists(os.path.join(CACHE_DIR,"heads",head_name)):
+                    print(f"extracting head {head_name}")
+                    head_image = Image.open(os.path.join(CACHE_DIR,"heads",head_name))
+                    head_image.convert("RGBA")
+                    head_image = head_image.crop((8,8,16,16))
+                    buffered = BytesIO()
+                    head_image.save(buffered,format="PNG",quality=100)
+                    head_image_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image in cache
+                    if head_image_base64 not in head_id_cache: #head is not already registered
+                        head_id_cache[head_image_base64] = value
+                        heads_added+=1
+
+    Notification(root,f"Imported {heads_added} heads to the cache.")
+    if heads_added>0:
+        with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
+            json_dump(head_id_cache,head_id_cache_file,indent=3)
+        update_cache_size()
+
+    if destroy:
+        if os.path.exists(os.path.join(CACHE_DIR,"values")):
+            for value_file in os.listdir(os.path.join(CACHE_DIR,"values")):
+                os.remove(value_file)
+            os.rmdir(os.path.join(CACHE_DIR,"values"))
+        if os.path.exists(os.path.join(CACHE_DIR,"heads")):
+            for head_file in os.listdir(os.path.join(CACHE_DIR,"heads")):
+                os.remove(head_file)
+            os.rmdir(os.path.join(CACHE_DIR,"heads"))
+
+    foxheadmaker1_popup.destroy()
+
 #Options Page
 
 page_options_1 = Frame(page_options)
@@ -1344,6 +1425,19 @@ notebook.add(page_cache, text='Cache')
 notebook.add(page_options, text='Options')
 
 notebook.pack(pady=10,padx=10)
+
+checked_foxheadmaker1_cache = False
+def on_tab_changed(event):
+    global checked_foxheadmaker1_cache
+    selected_tab = event.widget.select()
+    tab_name = event.widget.tab(selected_tab,"text")
+    if tab_name == "Cache": #cache trigger
+        if not(checked_foxheadmaker1_cache):
+            checked_foxheadmaker1_cache = True
+            check_import_foxheadmaker1()
+        update_cache_size()
+
+notebook.bind("<<NotebookTabChanged>>",on_tab_changed)
 
 frame_items = Frame(root, style='Card.TFrame', padding=(5, 6, 7, 8))
 frame_items_scroll = ScrollableFrame(frame_items)
