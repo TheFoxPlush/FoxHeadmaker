@@ -831,7 +831,7 @@ class ScrollableFrame(Frame):
 
 class ExportableItem(Button):
     def __init__(self,master,name,item_formats,icon=assets["items/apple.png"],terracotta_mode="append"):
-        super(ExportableItem,self).__init__(master=master,image=icon,text=name,compound="left",style="Accent.TButton",command=self.export_item)
+        super(ExportableItem,self).__init__(master=master,image=icon,text=name,compound="left",style="Accent.TButton",command=self.export_item,cursor="hand2")
         self.name = name
         self.item_formats = item_formats
         self.icon = icon
@@ -1347,9 +1347,9 @@ def check_import_foxheadmaker1(): #check for old cache values from foxheadmaker1
         foxheadmaker1_popup = popup_window("FoxHeadmaker v1 cache detected!",assets["in_text/folder.png"])
         Label(foxheadmaker1_popup,text="You can fuse your old FoxHeadmaker v1 cache with the new one for faster compiling on heads you've generated before.").pack(padx=10,pady=10)
         button_list = Frame(foxheadmaker1_popup)
-        foxheadmaker1_button_fuse_preserve = Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(False))
+        foxheadmaker1_button_fuse_preserve = Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(False),cursor="hand2")
         foxheadmaker1_button_fuse_preserve.pack(padx=10,pady=10,side="left")
-        foxheadmaker1_button_fuse_destroy = Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse(True))
+        foxheadmaker1_button_fuse_destroy = Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse(True),cursor="hand2")
         foxheadmaker1_button_fuse_destroy.pack(padx=10,pady=10,side="left")
         button_list.pack(padx=10,pady=10)
 
@@ -1449,7 +1449,7 @@ auth_key_frame.pack(padx=10,pady=10,side="left")
 def reset_preference():
     reset_preference_button.configure(state="disabled")
     config.set("export_item_preference","none")
-reset_preference_button = Button(page_options_2,text="Reset Item Export Preference",state="disabled",command=reset_preference)
+reset_preference_button = Button(page_options_2,text="Reset Item Export Preference",state="disabled",command=reset_preference,cursor="hand2")
 if config.args["export_item_preference"]!="none":
     reset_preference_button.configure(state="normal")
 reset_preference_button.pack(padx=10,pady=10,side="left")
@@ -1460,7 +1460,7 @@ option_vars = {}
 i = 0
 for option,values in toggleable_options.items():
     option_vars[option] = BooleanVar(value=config.args[option])
-    Checkbutton(toggleable_options_frame,variable=option_vars[option],text=values[0],command=lambda *args: config.set(option,option_vars[option].get())).grid(padx=10,pady=10,row=i//toggleable_options_columns,column=i%toggleable_options_columns)
+    Checkbutton(toggleable_options_frame,variable=option_vars[option],text=values[0],command=lambda *args: config.set(option,option_vars[option].get()),cursor="hand2").grid(padx=10,pady=10,row=i//toggleable_options_columns,column=i%toggleable_options_columns)
     i+=1
 
 page_options_1.pack(padx=10,pady=10)
@@ -1502,7 +1502,7 @@ def verify_update():
         if latest_version and version.parse(latest_version[1:]) > version.parse(__version__):
             update_window = popup_window("An update is available!",assets["items/ender_chest.png"])
             Label(update_window,text="An update is available on the GitHub!").pack(padx=10,pady=10)
-            Button(update_window,text=latest_version,image=assets["in_text/codeclient.png"],compound="left",command=new_update).pack(padx=10,pady=10)
+            Button(update_window,text=latest_version,image=assets["in_text/codeclient.png"],compound="left",command=new_update,cursor="hand2").pack(padx=10,pady=10)
     except Exception as e:
         return
 
