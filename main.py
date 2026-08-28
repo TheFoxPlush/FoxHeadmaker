@@ -1319,19 +1319,40 @@ cache_header.pack(padx=10,pady=10)
 
 def check_import_foxheadmaker1(): #check for old cache values from foxheadmaker1
     global foxheadmaker1_popup
+    global foxheadmaker1_button_fuse_preserve
+    global foxheadmaker1_button_fuse_destroy
     if os.path.exists(os.path.join(CACHE_DIR,"heads")) or os.path.exists(os.path.join(CACHE_DIR,"values")):
         foxheadmaker1_popup = popup_window("FoxHeadmaker v1 cache detected!",assets["in_text/folder.png"])
         Label(foxheadmaker1_popup,text="You can fuse your old FoxHeadmaker v1 cache with the new one for faster compiling on heads you've generated before.").pack(padx=10,pady=10)
         button_list = Frame(foxheadmaker1_popup)
-        Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(destroy=False)).pack(padx=10,pady=10,side="left")
-        Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse()).pack(padx=10,pady=10,side="left")
+        foxheadmaker1_button_fuse_preserve = Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(False))
+        foxheadmaker1_button_fuse_preserve.pack(padx=10,pady=10,side="left")
+        foxheadmaker1_button_fuse_destroy = Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse(True))
+        foxheadmaker1_button_fuse_destroy.pack(padx=10,pady=10,side="left")
         button_list.pack(padx=10,pady=10)
 
-def foxheadmaker1_fuse(destroy=True):
+def foxheadmaker1_fuse(destroy):
+    Thread(target=foxheadmaker1_fuse_async,args=(destroy,)).start()
+
+def foxheadmaker1_fuse_async(destroy):
     global foxheadmaker1_popup
+    global foxheadmaker1_button_fuse_preserve
+    global foxheadmaker1_button_fuse_destroy
+    foxheadmaker1_button_fuse_preserve.configure(command=None,state="disabled")
+    foxheadmaker1_button_fuse_destroy.configure(command=None,state="disabled")
+    progress = IntVar(value=0)
+    heads_added = IntVar(value=0)
+    max = len(os.listdir(os.path.join(CACHE_DIR,"values"))) if os.path.exists(os.path.join(CACHE_DIR,"values")) else 1
+    progress_bar_frame = Frame(foxheadmaker1_popup, style='Card.TFrame', padding=(5, 6, 7, 8))
+    progress_bar_label = Label(progress_bar_frame,text="Fusing...")
+    progress_bar_label.pack(padx=10,pady=10,side="left")
+    progress_bar = CustomProgressbar(progress_bar_frame,max=max,variable=progress)
+    progress_bar.pack(padx=10,pady=10,side="left")
+    progress_bar_heads = Label(progress_bar_frame,text="0",image=assets["in_text/head.png"],compound="left")
+    progress_bar_heads.pack(padx=10,pady=10,side="left")
+    progress_bar_frame.pack(padx=10,pady=10)
     with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
         head_id_cache = json_load(head_id_cache_file)
-    heads_added = 0
     if os.path.exists(os.path.join(CACHE_DIR,"values")) and os.path.exists(os.path.join(CACHE_DIR,"heads")):
         print("both folders exist")
         for value_file in os.listdir(os.path.join(CACHE_DIR,"values")):
@@ -1351,15 +1372,19 @@ def foxheadmaker1_fuse(destroy=True):
                     head_image_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image in cache
                     if head_image_base64 not in head_id_cache: #head is not already registered
                         head_id_cache[head_image_base64] = value
-                        heads_added+=1
+                        heads_added.set(heads_added.get()+1)
+                        progress_bar_heads.configure(text=str(heads_added.get()))
+            progress.set(progress.get()+1)
+            progress_bar.update()
 
-    Notification(root,f"Imported {heads_added} heads to the cache.")
-    if heads_added>0:
+    Notification(root,f"Imported {heads_added.get()} heads to the cache.")
+    if heads_added.get()>0:
         with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
             json_dump(head_id_cache,head_id_cache_file,indent=3)
         update_cache_size()
 
     if destroy:
+        progress_bar_label.configure(text="Destroying...")
         if os.path.exists(os.path.join(CACHE_DIR,"values")):
             for value_file in os.listdir(os.path.join(CACHE_DIR,"values")):
                 os.remove(value_file)
