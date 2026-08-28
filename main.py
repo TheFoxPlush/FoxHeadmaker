@@ -931,8 +931,8 @@ class ExportableItem(Button):
             Notification(root,"Copied terracotta function to clipboard!","success")      
 
 class HyperlinkButton(Button):
-    def __init__(self,master,text,hyper_link):
-        super(HyperlinkButton, self).__init__(master=master, text=text+" 🔗",cursor="hand2")
+    def __init__(self,master,text,hyper_link,logo=""):
+        super(HyperlinkButton, self).__init__(master=master, text=text+" 🔗",cursor="hand2",image=logo,compound="left")
         self.bind("<Button-1>", lambda e: hyperlink(hyper_link))
 
 global config
@@ -1295,9 +1295,9 @@ page_spritesheets_to_chars_right.pack(padx=10,pady=10,side="left")
 page_options_1 = Frame(page_options)
 
 external_links = Frame(page_options_1, style='Card.TFrame', padding=(5, 6, 7, 8))
-HyperlinkButton(external_links,text="GitHub",hyper_link="https://github.com/TheFoxPlush/FoxHeadmaker").pack(padx=10,pady=10,side="left")
-HyperlinkButton(external_links,text="Discord",hyper_link="https://discord.gg/xjpaRGCTgY").pack(padx=10,pady=10,side="left")
-HyperlinkButton(external_links,text="Twitch",hyper_link="https://twitch.tv/thefoxplush").pack(padx=10,pady=10,side="left")
+HyperlinkButton(external_links,text="GitHub",hyper_link="https://github.com/TheFoxPlush/FoxHeadmaker",logo=assets["in_text/github.png"]).pack(padx=10,pady=10,side="left")
+HyperlinkButton(external_links,text="Discord",hyper_link="https://discord.gg/xjpaRGCTgY",logo=assets["in_text/discord.png"]).pack(padx=10,pady=10,side="left")
+HyperlinkButton(external_links,text="Twitch",hyper_link="https://twitch.tv/thefoxplush",logo=assets["in_text/twitch.png"]).pack(padx=10,pady=10,side="left")
 external_links.pack(padx=10,pady=10,side="left")
 
 light_dark_mode_option = Frame(page_options_1, style='Card.TFrame', padding=(5, 6, 7, 8))
