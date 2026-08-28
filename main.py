@@ -1315,6 +1315,24 @@ update_cache_size()
 cache_size.pack(padx=10,pady=10,side="left")
 cache_head_count.pack(padx=10,pady=10,side="left")
 
+last_clear_cache_attempt = 0
+
+def clear_cache():
+    global last_clear_cache_attempt
+    if time()-last_clear_cache_attempt<3:
+        return
+    if time()-last_clear_cache_attempt>10:
+        Notification(root,"Are you sure you want to clear the cache? Click again in 3 seconds to confirm.","warning")
+        last_clear_cache_attempt = time()
+        return
+    with open(HEAD_ID_CACHE_PATH,"w") as headidcachefile:
+        json_dump({},headidcachefile)
+    update_cache_size()
+    Notification(root,"Cleared cache.","success")
+
+cache_button_clear = Button(cache_header,image=assets["in_text/error.png"],compound="left",text="Clear Cache",cursor="hand2",command=clear_cache)
+cache_button_clear.pack(padx=10,pady=10,side="left")
+
 cache_header.pack(padx=10,pady=10)
 
 def check_import_foxheadmaker1(): #check for old cache values from foxheadmaker1
