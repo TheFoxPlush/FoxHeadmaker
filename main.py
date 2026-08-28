@@ -946,6 +946,7 @@ apply_theme_to_titlebar(root)
 
 notebook = Notebook(root)
 page_spritesheets_to_chars = Frame(notebook)
+page_cache = Frame(notebook)
 page_options = Frame(notebook)
 
 #Spritesheets to Chars
@@ -1342,6 +1343,7 @@ page_options_2.pack(padx=10,pady=10)
 toggleable_options_frame.pack(padx=10,pady=10)
 
 notebook.add(page_spritesheets_to_chars, text='Spritesheets ➤ Chars')
+notebook.add(page_cache, text='Cache')
 notebook.add(page_options, text='Options')
 
 notebook.pack(pady=10,padx=10)
