@@ -60,7 +60,7 @@ def user_cache_dir_from_platformdirs():
     # For all Linux and *nix including Haiku, OpenIndiana, and the BSDs:
     return getenv("XDG_CACHE_HOME","").strip() or path.expanduser("~/.cache")
 
-__version__ = "2.0.1"
+__version__ = "2.1.0"
 
 LATEST_URL_API = "https://api.github.com/repos/TheFoxPlush/FoxHeadmaker/releases/latest"
 LATEST_URL = "https://github.com/TheFoxPlush/FoxHeadmaker/releases/latest"
@@ -144,7 +144,7 @@ def popup_window(name,icon):
     return(window)
 
 root = Tk()
-root.title("FoxHeadmaker v2.0")
+root.title(f"FoxHeadmaker v{__version__}")
 root.iconbitmap(asset(os.path.join("assets","logo.ico")))
 
 assets = {}
