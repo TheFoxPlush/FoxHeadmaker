@@ -930,6 +930,11 @@ class ExportableItem(Button):
             self.window_destroy("terracotta")
             Notification(root,"Copied terracotta function to clipboard!","success")      
 
+class HyperlinkButton(Button):
+    def __init__(self,master,text,hyper_link):
+        super(HyperlinkButton, self).__init__(master=master, text=text+" 🔗",cursor="hand2")
+        self.bind("<Button-1>", lambda e: hyperlink(hyper_link))
+
 global config
 config = Config()
 
@@ -1290,15 +1295,9 @@ page_spritesheets_to_chars_right.pack(padx=10,pady=10,side="left")
 page_options_1 = Frame(page_options)
 
 external_links = Frame(page_options_1, style='Card.TFrame', padding=(5, 6, 7, 8))
-button_github = Button(external_links,text="GitHub",cursor="hand2")
-button_github.bind("<Button-1>", lambda e: hyperlink("https://github.com/TheFoxPlush/FoxHeadmaker"))
-button_github.pack(padx=10,pady=10,side="left")
-button_github = Button(external_links,text="Discord",cursor="hand2")
-button_github.bind("<Button-1>", lambda e: hyperlink("https://discord.gg/xjpaRGCTgY"))
-button_github.pack(padx=10,pady=10,side="left")
-button_github = Button(external_links,text="Twitch",cursor="hand2")
-button_github.bind("<Button-1>", lambda e: hyperlink("https://twitch.tv/thefoxplush"))
-button_github.pack(padx=10,pady=10,side="left")
+HyperlinkButton(external_links,text="GitHub",hyper_link="https://github.com/TheFoxPlush/FoxHeadmaker").pack(padx=10,pady=10,side="left")
+HyperlinkButton(external_links,text="Discord",hyper_link="https://discord.gg/xjpaRGCTgY").pack(padx=10,pady=10,side="left")
+HyperlinkButton(external_links,text="Twitch",hyper_link="https://twitch.tv/thefoxplush").pack(padx=10,pady=10,side="left")
 external_links.pack(padx=10,pady=10,side="left")
 
 light_dark_mode_option = Frame(page_options_1, style='Card.TFrame', padding=(5, 6, 7, 8))
@@ -1316,9 +1315,7 @@ auth_key_frame = Frame(page_options_2, style='Card.TFrame', padding=(5, 6, 7, 8)
 Label(auth_key_frame,text="MineSkin API Key").pack(padx=10,pady=10,side="left")
 Entry(auth_key_frame,textvariable=auth_key,show="\u2022").pack(padx=10,pady=10,side="left")
 auth_key.trace_add("write",lambda *args: config.set("auth_key",auth_key.get()))
-link = Label(auth_key_frame,text="How do I get a key?",foreground="blue",cursor="hand2")
-link.bind("<Button-1>", lambda e: hyperlink("https://account.mineskin.org/keys"))
-link.pack(padx=10,pady=10,side="left")
+HyperlinkButton(auth_key_frame,text="How do I get a key?",hyper_link="https://account.mineskin.org/keys").pack(padx=10,pady=10,side="left")
 auth_key_frame.pack(padx=10,pady=10,side="left")
 
 def reset_preference():
