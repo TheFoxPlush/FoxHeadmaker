@@ -851,7 +851,7 @@ class ExportableItem(Button):
             return
         self.window = popup_window(f"Exporting item '{self.name}'",self.icon)
         self.window_loaded = True
-        frame = Frame(self.window, style='Card.TFrame', padding=(5, 6, 7, 8))
+        frame = CardFrame(self.window)
         Button(frame,compound="left",image=assets["in_text/give.png"],text="Copy /give command",command=self.export_give,cursor="hand2").pack(padx=10,pady=10,side="left")
         Button(frame,compound="left",image=assets["in_text/codeclient.png"],text="Export to CodeClient",command=self.export_codeclient,cursor="hand2").pack(padx=10,pady=10,side="left")
         Button(frame,compound="left",image=assets["in_text/millomod.png"],text="Export to Millomod",command=self.export_millomod,cursor="hand2").pack(padx=10,pady=10,side="left")
@@ -932,6 +932,10 @@ class HyperlinkButton(Button):
     def __init__(self,master,text,hyper_link,logo=""):
         super(HyperlinkButton, self).__init__(master=master, text=text+" 🔗",cursor="hand2",image=logo,compound="left")
         self.bind("<Button-1>", lambda e: hyperlink(hyper_link))
+
+class CardFrame(Frame):
+    def __init__(self,master,**kw):
+        super(CardFrame,self).__init__(master, style='Card.TFrame', padding=(5, 6, 7, 8),**kw)
 
 global config
 config = Config()
@@ -1246,9 +1250,9 @@ def spritesheets_to_chars_process():
 
 page_spritesheets_to_chars_left = Frame(page_spritesheets_to_chars)
 
-page_spritesheets_to_chars_left_above = Frame(page_spritesheets_to_chars_left, style='Card.TFrame', padding=(5, 6, 7, 8))
+page_spritesheets_to_chars_left_above = CardFrame(page_spritesheets_to_chars_left)
 
-get_spritesheets_frame = Frame(page_spritesheets_to_chars_left_above, style='Card.TFrame', padding=(5, 6, 7, 8))
+get_spritesheets_frame = CardFrame(page_spritesheets_to_chars_left_above)
 get_spritesheets_button = Button(get_spritesheets_frame,text="Choose spritesheet(s)...",command=get_spritesheets,cursor="hand2")
 get_spritesheets_button.pack(padx=10,pady=10,side="left")
 get_spritesheets_spritesheet_count = IntVar(value=0)
@@ -1259,14 +1263,14 @@ get_spritesheets_estimated_time = StringVar(value="~0s")
 Label(get_spritesheets_frame,image=assets["in_text/clock.png"],compound="left",textvariable=get_spritesheets_estimated_time).pack(padx=5,pady=10,side="left")
 get_spritesheets_frame.pack(padx=10,pady=10,expand=True)
 
-chain_mode_frame = Frame(page_spritesheets_to_chars_left_above, style='Card.TFrame', padding=(5, 6, 7, 8))
+chain_mode_frame = CardFrame(page_spritesheets_to_chars_left_above)
 chain_mode = BooleanVar(value=False)
 chain_mode_button = Checkbutton(chain_mode_frame,style="Switch.TCheckbutton",variable=chain_mode,cursor="hand2",command=make_previews)
 chain_mode_button.pack(side="left")
 Label(chain_mode_frame,image=assets["in_text/chain.png"],text="Chain Mode",compound="left").pack(side="left")
 chain_mode_frame.pack(padx=10,pady=10,expand=True)
 
-page_spritesheets_to_chars_left_below = Frame(page_spritesheets_to_chars_left, style='Card.TFrame', padding=(5, 6, 7, 8))
+page_spritesheets_to_chars_left_below = CardFrame(page_spritesheets_to_chars_left)
 
 page_spritesheets_to_chars_left_below_compile = Frame(page_spritesheets_to_chars_left_below)
 page_spritesheets_to_chars_compile_button = Button(page_spritesheets_to_chars_left_below_compile,text="Compile",style='Accent.TButton',cursor="hand2",command=spritesheets_to_chars_compile)
@@ -1281,7 +1285,7 @@ spritesheets_to_chars_progress = IntVar(value=0)
 page_spritesheets_to_chars_prograss_bar = CustomProgressbar(page_spritesheets_to_chars_left_below,variable=spritesheets_to_chars_progress)
 page_spritesheets_to_chars_prograss_bar.pack()
 
-page_spritesheets_to_chars_right = Frame(page_spritesheets_to_chars, style='Card.TFrame', padding=(5, 6, 7, 8))
+page_spritesheets_to_chars_right = CardFrame(page_spritesheets_to_chars)
 Label(page_spritesheets_to_chars_right,text="Item Preview").pack(padx=10,pady=10,expand=True)
 page_spritesheets_to_chars_preview = ScrollableImage(page_spritesheets_to_chars_right,image=assets["items/barrier.png"])
 page_spritesheets_to_chars_preview.pack()
@@ -1293,7 +1297,7 @@ page_spritesheets_to_chars_right.pack(padx=10,pady=10,side="left")
 
 #Cache Page
 
-cache_header = Frame(page_cache, style='Card.TFrame', padding=(5, 6, 7, 8))
+cache_header = CardFrame(page_cache)
 cache_size = Label(cache_header,image=assets["in_text/folder.png"],compound="left")
 cache_head_count = Label(cache_header,image=assets["in_text/head.png"],compound="left")
 
@@ -1361,7 +1365,7 @@ def foxheadmaker1_fuse_async(destroy):
     progress = IntVar(value=0)
     heads_added = IntVar(value=0)
     max = len(os.listdir(os.path.join(CACHE_DIR,"values"))) if os.path.exists(os.path.join(CACHE_DIR,"values")) else 1
-    progress_bar_frame = Frame(foxheadmaker1_popup, style='Card.TFrame', padding=(5, 6, 7, 8))
+    progress_bar_frame = CardFrame(foxheadmaker1_popup)
     progress_bar_label = Label(progress_bar_frame,text="Fusing...")
     progress_bar_label.pack(padx=10,pady=10,side="left")
     progress_bar = CustomProgressbar(progress_bar_frame,max=max,variable=progress)
@@ -1418,13 +1422,13 @@ def foxheadmaker1_fuse_async(destroy):
 
 page_options_1 = Frame(page_options)
 
-external_links = Frame(page_options_1, style='Card.TFrame', padding=(5, 6, 7, 8))
+external_links = CardFrame(page_options_1)
 HyperlinkButton(external_links,text="GitHub",hyper_link="https://github.com/TheFoxPlush/FoxHeadmaker",logo=assets["in_text/github.png"]).pack(padx=10,pady=10,side="left")
 HyperlinkButton(external_links,text="Discord",hyper_link="https://discord.gg/xjpaRGCTgY",logo=assets["in_text/discord.png"]).pack(padx=10,pady=10,side="left")
 HyperlinkButton(external_links,text="Twitch",hyper_link="https://twitch.tv/thefoxplush",logo=assets["in_text/twitch.png"]).pack(padx=10,pady=10,side="left")
 external_links.pack(padx=10,pady=10,side="left")
 
-light_dark_mode_option = Frame(page_options_1, style='Card.TFrame', padding=(5, 6, 7, 8))
+light_dark_mode_option = CardFrame(page_options_1)
 Label(light_dark_mode_option,image=assets["in_text/sun.png"]).pack(side="left")
 light_dark = BooleanVar(value=config.args["dark"])
 Checkbutton(light_dark_mode_option,style="Switch.TCheckbutton",variable=light_dark,command=change_theme,cursor="hand2").pack(side="left")
@@ -1435,7 +1439,7 @@ ExportableItem(page_options_1,"Extraction Function",EXTRACTION_FUNCTION_ITEM_FOR
 
 page_options_2 = Frame(page_options)
 
-auth_key_frame = Frame(page_options_2, style='Card.TFrame', padding=(5, 6, 7, 8))
+auth_key_frame = CardFrame(page_options_2)
 Label(auth_key_frame,text="MineSkin API Key").pack(padx=10,pady=10,side="left")
 Entry(auth_key_frame,textvariable=auth_key,show="\u2022").pack(padx=10,pady=10,side="left")
 auth_key.trace_add("write",lambda *args: config.set("auth_key",auth_key.get()))
@@ -1450,7 +1454,7 @@ if config.args["export_item_preference"]!="none":
     reset_preference_button.configure(state="normal")
 reset_preference_button.pack(padx=10,pady=10,side="left")
 
-toggleable_options_frame = Frame(page_options, style='Card.TFrame', padding=(5, 6, 7, 8))
+toggleable_options_frame = CardFrame(page_options)
 toggleable_options_columns = ceil(sqrt(len(toggleable_options)))
 option_vars = {}
 i = 0
@@ -1482,7 +1486,7 @@ def on_tab_changed(event):
 
 notebook.bind("<<NotebookTabChanged>>",on_tab_changed)
 
-frame_items = Frame(root, style='Card.TFrame', padding=(5, 6, 7, 8))
+frame_items = CardFrame(root)
 frame_items_scroll = ScrollableFrame(frame_items)
 frame_items_scroll_clear_button = Button(frame_items_scroll.content,text="Clear",image=assets["items/barrier.png"],compound="left",state="disabled",command=clear_items)
 frame_items_scroll_clear_button.pack(padx=10,pady=10,side="left")
