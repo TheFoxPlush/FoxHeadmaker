@@ -1133,10 +1133,13 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
                 if response.status_code==403: #unauthorized access; wrong api key often times
                     Notification(root,"Your api key is likely incorrect. Shutting down task...","error")
                     return(None)
+                elif response.status_code==429: #requesting too fast; temporary slowdown
+                    Notification(root,"mineskin.org is receiving too many requests. Trying again in 20s...","error")
+                    sleep(20)
+                    continue
                 else:
                     Notification(root,f"Error from mineskin.org ({response.status_code}). Trying again in 5s...","error")
                     sleep(5)
-                    continue
             break
         result = response.json()["data"]["texture"]["value"] #raw output value
         result = base64_compressor_value(result) #compresses the value by stripping useless stuff
