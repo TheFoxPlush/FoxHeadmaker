@@ -1119,13 +1119,14 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
         HEAD_TEMPLATE.paste(tile,(8,8))
         buffered = BytesIO()
         HEAD_TEMPLATE.save(buffered,format="PNG",quality=100)
+        tile_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image to submit
+        tile_base64 = f"data:image/png;base64,{tile_base64}"
         while True:
             request_time = time()
             response = requests_post(
-                url='https://api.mineskin.org/generate/upload',
-                data={"name":name,"visibility":0},
-                files={"file":("obfuscated/path/to/file", buffered.getvalue(), 'text/x-spam')},
-                headers={"User-Agent": "FoxHeadmaker","Authorization": "Bearer " + config.args["auth_key"]}
+                url='https://api.mineskin.org/v2/generate',
+                json={"name":name,"url":tile_base64},
+                headers={"Content-Type":"application/json","Accept":"application/json","Authorization": f'Bearer {config.args["auth_key"]}'}
             )
             request_time = time() - request_time
             sleep_time = 0
@@ -1141,11 +1142,11 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
                     Notification(root,f"Error from mineskin.org ({response.status_code}). Trying again in 5s...","error")
                     sleep(5)
             break
-        result = response.json()["data"]["texture"]["value"] #raw output value
+        result = response.json()["skin"]["texture"]["data"]["value"] #raw output value
         result = base64_compressor_value(result) #compresses the value by stripping useless stuff
         #computing remaining time
-        if response.json()["rateLimit"]["limit"]["remaining"]==0:
-            sleep_time = response.json()["rateLimit"]["limit"]["reset"]-time()
+        if response.json()["rateLimit"]["limit"]["minute"]["remaining"]==0:
+            sleep_time = response.json()["rateLimit"]["limit"]["minute"]["reset"]-time()
         else:
             sleep_time = max(MIN_REQ_TIME-request_time,0)
         if sleep_time > 0:
