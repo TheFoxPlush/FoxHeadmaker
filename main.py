@@ -1154,7 +1154,7 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
         return(result)
 
     except Exception as e:
-        Notification(root,"A critical error occured grabbing the mineskin.org code.")
+        Notification(root,"A critical error occured grabbing the mineskin.org code.","error")
         logging.exception("Error in get_head_id_from_tile")
 
 def base64_compressor_value(value):
