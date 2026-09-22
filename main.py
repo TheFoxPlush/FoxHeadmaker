@@ -1141,6 +1141,7 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
                 else:
                     Notification(root,f"Error from mineskin.org ({response.status_code}). Trying again in 5s...","error")
                     sleep(5)
+                    continue
             break
         result = response.json()["skin"]["texture"]["data"]["value"] #raw output value
         result = base64_compressor_value(result) #compresses the value by stripping useless stuff
