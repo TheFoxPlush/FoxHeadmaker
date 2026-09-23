@@ -136,7 +136,8 @@ toggleable_options = {
             "remove_extension":["Strip file extension","Remove file extension for spritesheet names, i.e. remove .png, .jpeg, ...",False],
             "show_purple_tint":["Show purple lore tint","Show natural vanilla Minecraft lore purple tint on preview to ressemble the obtained item's lore. Does not affect the color of the sprites.",False],
             "inverse_scroll_items":["Invert item scrolling direction","Invert the scrolling direction for the item bar below.",False],
-            "spritesheet_notification":["Spritesheet completion notification","Notify when individual spritesheets are compiled into individual items instead of waiting for the full completion.",True]
+            "spritesheet_notification":["Spritesheet completion notification","Notify when individual spritesheets are compiled into individual items instead of waiting for the full completion.",True],
+            "mineskin_info":["Show mineskin info","When compiling, display information under the bar about the mineskin.org limits returned by the request.",False]
             }
 
 def popup_window(name,icon):
@@ -1122,6 +1123,12 @@ def spritesheets_to_chars_compile():
     page_spritesheets_to_chars_compile_spritesheets.configure(text=f"0/{get_spritesheets_spritesheet_count.get()}")
     page_spritesheets_to_chars_compile_heads.configure(text=f"0/{get_spritesheets_head_count.get()}")
     page_spritesheets_to_chars_compile_time_left.configure(text="")
+    if config.args["mineskin_info"]:
+        spritesheets_to_chars_mineskin_info.pack()
+        spritesheets_to_chars_mineskin_info.is_packed = 1
+        spritesheets_to_chars_mineskin_info_response_time.configure(text="#s")
+        spritesheets_to_chars_mineskin_info_limits.configure(text="#/# #/#")
+        spritesheets_to_chars_mineskin_info_time_next_request.configure(text="#s")
     worker_thread = Thread(target=spritesheets_to_chars_process)
     worker_thread.start()
 
@@ -1143,7 +1150,10 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
                 headers={"Content-Type":"application/json","Accept":"application/json","Authorization": f'Bearer {config.args["auth_key"]}'}
             )
             request_time = time() - request_time
+            spritesheets_to_chars_mineskin_info_response_time.configure(text=f"{round(request_time,1)}s")
             next_request_time = time()+response.json()["rateLimit"]["next"]["relative"]/1000
+            spritesheets_to_chars_mineskin_info_time_next_request.configure(text=f"{round(response.json()["rateLimit"]["next"]["relative"]/1000,1)}s")
+            spritesheets_to_chars_mineskin_info_limits.configure(text=f"{response.json()["rateLimit"]["limit"]["minute"]["remaining"]}/{response.json()["rateLimit"]["limit"]["minute"]["limit"]} {response.json()["rateLimit"]["limit"]["hour"]["remaining"]}/{response.json()["rateLimit"]["limit"]["hour"]["limit"]}")
             if response.status_code != 200: #error somewhere...
                 if response.status_code==403: #unauthorized access; wrong api key often times
                     Notification(root,"Your api key is likely incorrect. Shutting down task...","error")
@@ -1258,6 +1268,8 @@ def spritesheets_to_chars_process():
     except Exception as e:
         Notification(root,f"Critical error in compilation process: {e}","error")
         logging.exception("Error in spritesheets_to_chars_process")
+    if spritesheets_to_chars_mineskin_info.is_packed == 1:
+        spritesheets_to_chars_mineskin_info.pack_forget()
 
 page_spritesheets_to_chars_left = Frame(page_spritesheets_to_chars)
 
@@ -1295,6 +1307,15 @@ page_spritesheets_to_chars_left_below_compile.pack()
 spritesheets_to_chars_progress = IntVar(value=0)
 page_spritesheets_to_chars_prograss_bar = tooltip(CustomProgressbar(page_spritesheets_to_chars_left_below,variable=spritesheets_to_chars_progress),"Compilation progress.")
 page_spritesheets_to_chars_prograss_bar.pack()
+
+spritesheets_to_chars_mineskin_info = Frame(page_spritesheets_to_chars_left_below)
+spritesheets_to_chars_mineskin_info_response_time = tooltip(Label(spritesheets_to_chars_mineskin_info,image=assets["in_text/response_time.png"],text="",compound="left"),"Request response time.")
+spritesheets_to_chars_mineskin_info_response_time.pack(padx=10,pady=10,side="left")
+spritesheets_to_chars_mineskin_info_time_next_request = tooltip(Label(spritesheets_to_chars_mineskin_info,image=assets["in_text/clock.png"],text="",compound="left"),"Time given by mineskin.org until next request.")
+spritesheets_to_chars_mineskin_info_time_next_request.pack(padx=10,pady=10,side="left")
+spritesheets_to_chars_mineskin_info_limits = tooltip(Label(spritesheets_to_chars_mineskin_info,image=assets["in_text/bundle.png"],text="",compound="left"),"Limits given by mineskin.org (hour, minute). Requests remaining out of requests available.")
+spritesheets_to_chars_mineskin_info_limits.pack(padx=10,pady=10,side="left")
+spritesheets_to_chars_mineskin_info.is_packed = 0
 
 page_spritesheets_to_chars_right = CardFrame(page_spritesheets_to_chars)
 Label(page_spritesheets_to_chars_right,text="Item Preview").pack(padx=10,pady=10,expand=True)
