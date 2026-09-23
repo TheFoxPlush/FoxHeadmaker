@@ -1,6 +1,7 @@
 from tkinter import IntVar, StringVar, BooleanVar, PhotoImage, filedialog, Canvas, Tk, Toplevel, TclError
 from tkinter import Frame as tk_Frame
 from tkinter import Label as tk_Label
+from tktooltip import ToolTip as Tooltip
 from tkinter.ttk import Notebook, Frame, Button, Label, Entry, Checkbutton, Scrollbar, Style
 import webbrowser
 import os
@@ -132,10 +133,10 @@ EXTRACTION_FUNCTION_ITEM_FORMATS = {
 }
 
 toggleable_options = {
-            "remove_extension":["Remove file extension for spritesheet names",False],
-            "show_purple_tint":["Show natural lore purple tint on preview",False],
-            "inverse_scroll_items":["Invert item scrolling direction",False],
-            "spritesheet_notification":["Notify when individual spritesheets are complete",True]
+            "remove_extension":["Strip file extension","Remove file extension for spritesheet names, i.e. remove .png, .jpeg, ...",False],
+            "show_purple_tint":["Show purple lore tint","Show natural vanilla Minecraft lore purple tint on preview to ressemble the obtained item's lore. Does not affect the color of the sprites.",False],
+            "inverse_scroll_items":["Invert item scrolling direction","Invert the scrolling direction for the item bar below.",False],
+            "spritesheet_notification":["Spritesheet completion notification","Notify when individual spritesheets are compiled into individual items instead of waiting for the full completion.",True]
             }
 
 def popup_window(name,icon):
@@ -201,6 +202,15 @@ def fuse_images(images):
     for offset,image in images.items():
         new_image.paste(image,offset)
     return(new_image)
+
+def tooltip(widget,text):
+    if hasattr(widget,"hyper_link"):
+        text+=f"\n🔗 {widget.hyper_link}"
+    if hasattr(widget,"item_formats"):
+        item_size = size_of_file_format(len(widget.item_formats["give"].encode("utf-8")))
+        text+=f"\n↓ {widget.name} ({item_size})"
+    Tooltip(widget,msg=text)
+    return(widget)
 
 class Notification:
     _notifications = []
@@ -678,7 +688,7 @@ class Config():
             "export_item_preference":"none",
         }
         for key,values in toggleable_options.items():
-            self.args[key] = values[1]
+            self.args[key] = values[2]
         with open(self.path,"r") as configfile:
             set_config_args = json_load(configfile)
         for key,value in set_config_args.items():
@@ -932,6 +942,7 @@ class ExportableItem(Button):
 class HyperlinkButton(Button):
     def __init__(self,master,text,hyper_link,logo=""):
         super(HyperlinkButton, self).__init__(master=master, text=text+" 🔗",cursor="hand2",image=logo,compound="left")
+        self.hyper_link = hyper_link
         self.bind("<Button-1>", lambda e: hyperlink(hyper_link))
 
 class CardFrame(Frame):
@@ -1230,7 +1241,7 @@ def spritesheets_to_chars_process():
                 }
             item_exports = {"give":item_export_1,"export":item_export_2,"terracotta":item_export_3}
             page_spritesheets_to_chars_compile_spritesheets.configure(text=f"{spritesheet_i}/{get_spritesheets_spritesheet_count.get()}")
-            item_widget = ExportableItem(frame_items_scroll.content,spritesheet,item_exports)
+            item_widget = tooltip(ExportableItem(frame_items_scroll.content,spritesheet,item_exports),f"The compiled item for '{spritesheet}'. Contains {len(sum(spritesheet_head_ids,[]))} sprites to be set inside {len(spritesheet_head_ids)} variables.")
             frame_items_scroll_items.append(item_widget)
             frame_items_scroll_clear_button.configure(state="normal")
             item_widget.pack(padx=10,pady=10,side="left")
@@ -1253,21 +1264,21 @@ page_spritesheets_to_chars_left = Frame(page_spritesheets_to_chars)
 page_spritesheets_to_chars_left_above = CardFrame(page_spritesheets_to_chars_left)
 
 get_spritesheets_frame = CardFrame(page_spritesheets_to_chars_left_above)
-get_spritesheets_button = Button(get_spritesheets_frame,text="Choose spritesheet(s)...",command=get_spritesheets,cursor="hand2")
+get_spritesheets_button = tooltip(Button(get_spritesheets_frame,text="Choose spritesheet(s)...",command=get_spritesheets,cursor="hand2"),"Select a spritesheet in your folder to extract head sprites from.")
 get_spritesheets_button.pack(padx=10,pady=10,side="left")
 get_spritesheets_spritesheet_count = IntVar(value=0)
-Label(get_spritesheets_frame,image=assets["in_text/spritesheet.png"],compound="left",textvariable=get_spritesheets_spritesheet_count).pack(padx=5,pady=10,side="left")
+tooltip(Label(get_spritesheets_frame,image=assets["in_text/spritesheet.png"],compound="left",textvariable=get_spritesheets_spritesheet_count),"Amount of spritesheets to compile.").pack(padx=5,pady=10,side="left")
 get_spritesheets_head_count = IntVar(value=0)
-Label(get_spritesheets_frame,image=assets["in_text/head.png"],compound="left",textvariable=get_spritesheets_head_count).pack(padx=5,pady=10,side="left")
+tooltip(Label(get_spritesheets_frame,image=assets["in_text/head.png"],compound="left",textvariable=get_spritesheets_head_count),"Amount of heads to compile.").pack(padx=5,pady=10,side="left")
 get_spritesheets_estimated_time = StringVar(value="~0s")
-Label(get_spritesheets_frame,image=assets["in_text/clock.png"],compound="left",textvariable=get_spritesheets_estimated_time).pack(padx=5,pady=10,side="left")
+tooltip(Label(get_spritesheets_frame,image=assets["in_text/clock.png"],compound="left",textvariable=get_spritesheets_estimated_time),"Estimated time for compilation. Based on usual compilation rate from mineskin.org, may be faster if part of the compiled heads already exist in cache.").pack(padx=5,pady=10,side="left")
 get_spritesheets_frame.pack(padx=10,pady=10,expand=True)
 
 chain_mode_frame = CardFrame(page_spritesheets_to_chars_left_above)
 chain_mode = BooleanVar(value=False)
 chain_mode_button = Checkbutton(chain_mode_frame,style="Switch.TCheckbutton",variable=chain_mode,cursor="hand2",command=make_previews)
 chain_mode_button.pack(side="left")
-Label(chain_mode_frame,image=assets["in_text/chain.png"],text="Chain Mode",compound="left").pack(side="left")
+tooltip(Label(chain_mode_frame,image=assets["in_text/chain.png"],text="Chain Mode",compound="left"),"Chain mode makes 8x8 sprites that are horizontally connected on the spritesheet appear in the same variable on the exported item. Useful for long sprites, like ranks, etc.").pack(side="left")
 chain_mode_frame.pack(padx=10,pady=10,expand=True)
 
 page_spritesheets_to_chars_left_below = CardFrame(page_spritesheets_to_chars_left)
@@ -1275,14 +1286,14 @@ page_spritesheets_to_chars_left_below = CardFrame(page_spritesheets_to_chars_lef
 page_spritesheets_to_chars_left_below_compile = Frame(page_spritesheets_to_chars_left_below)
 page_spritesheets_to_chars_compile_button = Button(page_spritesheets_to_chars_left_below_compile,text="Compile",style='Accent.TButton',cursor="hand2",command=spritesheets_to_chars_compile)
 page_spritesheets_to_chars_compile_button.pack(padx=10,pady=10,side="left")
-page_spritesheets_to_chars_compile_spritesheets = Label(page_spritesheets_to_chars_left_below_compile,image=assets["in_text/spritesheet.png"],text="",compound="left")
-page_spritesheets_to_chars_compile_heads = Label(page_spritesheets_to_chars_left_below_compile,image=assets["in_text/head.png"],text="",compound="left")
-page_spritesheets_to_chars_compile_time_left = Label(page_spritesheets_to_chars_left_below_compile,image=assets["in_text/clock.png"],text="",compound="left")
+page_spritesheets_to_chars_compile_spritesheets = tooltip(Label(page_spritesheets_to_chars_left_below_compile,image=assets["in_text/spritesheet.png"],text="",compound="left"),"Progress on spritesheet conversion.")
+page_spritesheets_to_chars_compile_heads = tooltip(Label(page_spritesheets_to_chars_left_below_compile,image=assets["in_text/head.png"],text="",compound="left"),"Progress on head conversion.")
+page_spritesheets_to_chars_compile_time_left = tooltip(Label(page_spritesheets_to_chars_left_below_compile,image=assets["in_text/clock.png"],text="",compound="left"),"Estimated time left for compilation. May be inaccurate early on.")
 page_spritesheets_to_chars_left_below_compile.pack()
 
 
 spritesheets_to_chars_progress = IntVar(value=0)
-page_spritesheets_to_chars_prograss_bar = CustomProgressbar(page_spritesheets_to_chars_left_below,variable=spritesheets_to_chars_progress)
+page_spritesheets_to_chars_prograss_bar = tooltip(CustomProgressbar(page_spritesheets_to_chars_left_below,variable=spritesheets_to_chars_progress),"Compilation progress.")
 page_spritesheets_to_chars_prograss_bar.pack()
 
 page_spritesheets_to_chars_right = CardFrame(page_spritesheets_to_chars)
@@ -1298,8 +1309,8 @@ page_spritesheets_to_chars_right.pack(padx=10,pady=10,side="left")
 #Cache Page
 
 cache_header = CardFrame(page_cache)
-cache_size = Label(cache_header,image=assets["in_text/folder.png"],compound="left")
-cache_head_count = Label(cache_header,image=assets["in_text/head.png"],compound="left")
+cache_size = tooltip(Label(cache_header,image=assets["in_text/folder.png"],compound="left"),"Current file size of the cache. The cache consists of a text file that maps your 8x8 sprites to their obtained head values.")
+cache_head_count = tooltip(Label(cache_header,image=assets["in_text/head.png"],compound="left"),"Current amount of heads stored in the cache.")
 
 def size_of_file_format(num, suffix="B"): #thanks to https://stackoverflow.com/a/1094933
     for unit in ("", "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi"):
@@ -1334,7 +1345,7 @@ def clear_cache():
     update_cache_size()
     Notification(root,"Cleared cache.","success")
 
-cache_button_clear = Button(cache_header,image=assets["in_text/error.png"],compound="left",text="Clear Cache",cursor="hand2",command=clear_cache)
+cache_button_clear = tooltip(Button(cache_header,image=assets["in_text/error.png"],compound="left",text="Clear Cache",cursor="hand2",command=clear_cache),"Remove all cached heads. This will remove the sped up compilation for heads you've previously compiled.")
 cache_button_clear.pack(padx=10,pady=10,side="left")
 
 cache_header.pack(padx=10,pady=10)
@@ -1347,9 +1358,9 @@ def check_import_foxheadmaker1(): #check for old cache values from foxheadmaker1
         foxheadmaker1_popup = popup_window("FoxHeadmaker v1 cache detected!",assets["in_text/folder.png"])
         Label(foxheadmaker1_popup,text="You can fuse your old FoxHeadmaker v1 cache with the new one for faster compiling on heads you've generated before.").pack(padx=10,pady=10)
         button_list = Frame(foxheadmaker1_popup)
-        foxheadmaker1_button_fuse_preserve = Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(False),cursor="hand2")
+        foxheadmaker1_button_fuse_preserve = tooltip(Button(button_list,text="Fuse & Preserve",command= lambda *args: foxheadmaker1_fuse(False),cursor="hand2"),"Fuse FoxHeadmaker v1's cache with your current cache and preserve it.")
         foxheadmaker1_button_fuse_preserve.pack(padx=10,pady=10,side="left")
-        foxheadmaker1_button_fuse_destroy = Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse(True),cursor="hand2")
+        foxheadmaker1_button_fuse_destroy = tooltip(Button(button_list,text="Fuse & Destroy",style="Accent.TButton",command= lambda *args: foxheadmaker1_fuse(True),cursor="hand2"),"Fuse FoxHeadmaker v1's cache with your current cache and destroy it to prevent future asking.")
         foxheadmaker1_button_fuse_destroy.pack(padx=10,pady=10,side="left")
         button_list.pack(padx=10,pady=10)
 
@@ -1368,7 +1379,7 @@ def foxheadmaker1_fuse_async(destroy):
     progress_bar_frame = CardFrame(foxheadmaker1_popup)
     progress_bar_label = Label(progress_bar_frame,text="Fusing...")
     progress_bar_label.pack(padx=10,pady=10,side="left")
-    progress_bar = CustomProgressbar(progress_bar_frame,max=max,variable=progress)
+    progress_bar = tooltip(CustomProgressbar(progress_bar_frame,max=max,variable=progress),"Cache fusion progress.")
     progress_bar.pack(padx=10,pady=10,side="left")
     progress_bar_heads = Label(progress_bar_frame,text="0",image=assets["in_text/head.png"],compound="left")
     progress_bar_heads.pack(padx=10,pady=10,side="left")
@@ -1422,33 +1433,37 @@ def foxheadmaker1_fuse_async(destroy):
 page_options_1 = Frame(page_options)
 
 external_links = CardFrame(page_options_1)
-HyperlinkButton(external_links,text="GitHub",hyper_link="https://github.com/TheFoxPlush/FoxHeadmaker",logo=assets["in_text/github.png"]).pack(padx=10,pady=10,side="left")
-HyperlinkButton(external_links,text="Discord",hyper_link="https://discord.gg/xjpaRGCTgY",logo=assets["in_text/discord.png"]).pack(padx=10,pady=10,side="left")
-HyperlinkButton(external_links,text="Twitch",hyper_link="https://twitch.tv/thefoxplush",logo=assets["in_text/twitch.png"]).pack(padx=10,pady=10,side="left")
+tooltip(HyperlinkButton(external_links,text="GitHub",hyper_link="https://github.com/TheFoxPlush/FoxHeadmaker",logo=assets["in_text/github.png"]),"Feel free to star the repository!").pack(padx=10,pady=10,side="left")
+tooltip(HyperlinkButton(external_links,text="Discord",hyper_link="https://discord.gg/xjpaRGCTgY",logo=assets["in_text/discord.png"]),"If you need help with the software or have suggestions or bugs to submit.").pack(padx=10,pady=10,side="left")
+tooltip(HyperlinkButton(external_links,text="Twitch",hyper_link="https://twitch.tv/thefoxplush",logo=assets["in_text/twitch.png"]),"I may stream from time to time...").pack(padx=10,pady=10,side="left")
 external_links.pack(padx=10,pady=10,side="left")
 
 light_dark_mode_option = CardFrame(page_options_1)
 Label(light_dark_mode_option,image=assets["in_text/sun.png"]).pack(side="left")
 light_dark = BooleanVar(value=config.args["dark"])
-Checkbutton(light_dark_mode_option,style="Switch.TCheckbutton",variable=light_dark,command=change_theme,cursor="hand2").pack(side="left")
+tooltip(Checkbutton(light_dark_mode_option,style="Switch.TCheckbutton",variable=light_dark,command=change_theme,cursor="hand2"),"Switch between light and dark mode.").pack(side="left")
 Label(light_dark_mode_option,image=assets["in_text/moon.png"]).pack(side="left")
 light_dark_mode_option.pack(padx=10,pady=10,side="left")
 
-ExportableItem(page_options_1,"Extraction Function",EXTRACTION_FUNCTION_ITEM_FORMATS,assets["items/ender_chest.png"],terracotta_mode="copy").pack(padx=10,pady=10,expand=True,side="left")
+tooltip(ExportableItem(page_options_1,"Extraction Function",EXTRACTION_FUNCTION_ITEM_FORMATS,assets["items/ender_chest.png"],terracotta_mode="copy"),"The DiamondFire function which allows you to extract variables from the generated items. Call this with the generated item & your variable names as strings.").pack(padx=10,pady=10,expand=True,side="left")
 
 page_options_2 = Frame(page_options)
 
 auth_key_frame = CardFrame(page_options_2)
 Label(auth_key_frame,text="MineSkin API Key").pack(padx=10,pady=10,side="left")
-Entry(auth_key_frame,textvariable=auth_key,show="\u2022").pack(padx=10,pady=10,side="left")
+tooltip(Entry(auth_key_frame,textvariable=auth_key,show="\u2022"),"Copy your token when generating your API Key.").pack(padx=10,pady=10,side="left")
 auth_key.trace_add("write",lambda *args: config.set("auth_key",auth_key.get()))
-HyperlinkButton(auth_key_frame,text="How do I get a key?",hyper_link="https://account.mineskin.org/keys").pack(padx=10,pady=10,side="left")
+tooltip(HyperlinkButton(auth_key_frame,text="How do I get a key?",hyper_link="https://account.mineskin.org/keys"),"Generate an API Key on mineskin.org.").pack(padx=10,pady=10,side="left")
 auth_key_frame.pack(padx=10,pady=10,side="left")
 
 def reset_preference():
     reset_preference_button.configure(state="disabled")
     config.set("export_item_preference","none")
-reset_preference_button = Button(page_options_2,text="Reset Item Export Preference",state="disabled",command=reset_preference,cursor="hand2")
+
+def preference_text():
+    return(f"Current preference: '{config.args["export_item_preference"]}'.\nClick to reset.")
+
+reset_preference_button = tooltip(Button(page_options_2,text="Reset Item Export Preference",state="disabled",command=reset_preference,cursor="hand2"),preference_text)
 if config.args["export_item_preference"]!="none":
     reset_preference_button.configure(state="normal")
 reset_preference_button.pack(padx=10,pady=10,side="left")
@@ -1459,7 +1474,7 @@ option_vars = {}
 i = 0
 for option,values in toggleable_options.items():
     option_vars[option] = BooleanVar(value=config.args[option])
-    Checkbutton(toggleable_options_frame,variable=option_vars[option],text=values[0],command=lambda *args: config.set(option,option_vars[option].get()),cursor="hand2").grid(padx=10,pady=10,row=i//toggleable_options_columns,column=i%toggleable_options_columns)
+    tooltip(Checkbutton(toggleable_options_frame,variable=option_vars[option],text=values[0],command=lambda *args: config.set(option,option_vars[option].get()),cursor="hand2"),values[1]).grid(padx=10,pady=10,row=i//toggleable_options_columns,column=i%toggleable_options_columns)
     i+=1
 
 page_options_1.pack(padx=10,pady=10)
