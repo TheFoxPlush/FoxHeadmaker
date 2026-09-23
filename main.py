@@ -1173,9 +1173,9 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
         return(result)
 
     except Exception as e:
-        Notification(root,"A critical error occured grabbing the mineskin.org code.","error")
+        Notification(root,"A critical error occured grabbing the mineskin.org code. This may be due to your internet connection. Returning error head...","error")
         logging.exception("Error in get_head_id_from_tile")
-        return(ERROR_BASE64) #in case of critical error, return an error head
+        return("#error") #in case of critical error, return an error head
 
 def base64_compressor_value(value):
     decoded = b64decode(value.encode("ascii")).decode("ascii")
@@ -1214,9 +1214,12 @@ def spritesheets_to_chars_process():
                         head_id = head_id_cache[tile_base64]
                     else:
                         head_id = get_head_id_from_tile(tile,spritesheet)
-                        head_id_cache[tile_base64] = head_id
-                        with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
-                            json_dump(head_id_cache,head_id_cache_file,indent=3)
+                        if not(head_id == "#error"):
+                            head_id_cache[tile_base64] = head_id
+                            with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
+                                json_dump(head_id_cache,head_id_cache_file,indent=3)
+                        else:
+                            head_id = ERROR_BASE64
                     current_chain.append(head_id)
                     #visual stuff
                     spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
