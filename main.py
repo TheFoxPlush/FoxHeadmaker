@@ -102,10 +102,12 @@ if not(os.path.isfile(HEAD_ID_CACHE_PATH)):
 
 HEAD_TEMPLATE = Image.open(BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00@\x00\x00\x00@\x02\x03\x00\x00\x00\xd7\x07\x99M\x00\x00\x00\tPLTE\x00\x00\x00 \x018\xff\xfc\xfdI\xad\x01\xf5\x00\x00\x00\x01tRNS\x00@\xe6\xd8f\x00\x00\x01UIDATx\x9c\xc5R\xc1J\xc3@\x14\x9c\xdd\xec\x9e\xd2B\xa0\xf1;L\x0f\x1e\xc5\x15z\xec!`r\xf0\x1b\xfc\xb4(\xb4\x90\xa3\x87-\xe8Mi\xff\xc3\x06\x025\xa74<\xd9\xddD\xd3PE\x11\xf4A\xd8e\xf6\xedd\xde\xec0 \x05\x90\xa1+\xfe\xbe\xfbS\x80\x19\x15\xe8)\xe1\xff\xa3\x83g@f4\xa4@\x9a\xfer\x16W\xd9\x91+\t\xc4\x0c\x80\xe8\x00Q\x04\x11C0\xa5pY\xbb\x8e\t\x04\x01\xdeC\xe1+\x07\x14vi>8`\x8b\x14\xaa\x16\x98ThPI\rG\xd1\xd3!\xeb\x81\x8e\xb6\xe3\x93Y\xd2\xa1\x1f/R\x08\xe3J\xd6u\x84\xfe\xf9\xe8\xe0\xca\x16\x14\x1d\n\x03\xdbt\x1b\xcb\xa7\x1e\t{\xe7\x87\x1b[\x0f\x7f\xdb+\x8e@\x01\xac\xb5H\xd9\x0e\xa6b\x9c$\x12A\xec\xac\x93\xde\xd3kX\x17\xf5\xac\xc9\xe7\xa5\x01j\xa6D\xb1\x86d\xfaj\xebHi\xb9\x00\xe0\x93\xba5\xa4\x02h.\xc2\x15Pa\x1d\x97z\xf8P\xeaf\xa0C\x1f\x11\x06\x9b\x8a\xde\xc7\x87\xe7?\xce\xc7\xb72\xc6\x12\x99(\xc8\x18\x90\x97f\x12\xe1\xdd\xd1\x16\x92\x16q)\x9e\x83\xa9w/F\xaaD\xe8\x9f\xed\xf3\xf1n\x0co\xa58\xcb\x81B\x92\xc6\x8eEhh\xe3Hk\r\x8cI\x9b\xdcp\x8aa\xcc\xa0\xf9\xa9\xb2\xb9a\xd7\xac\rF[\xc2>\xd8W\xc2\xde\x00W\xd7h\x14\xb7\xeb\x99\x82\x00\x00\x00\x00IEND\xaeB`\x82')).convert("RGBA")
 
-MIN_REQ_TIME = 4
+ERROR_BASE64 = '''eyJ0ZXh0dXJlcyI6IHsiU0tJTiI6IHsidXJsIjogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTg4NmRiMmQ5NzkzMzZkMjQ2M2I3NzQ0OTk1YjdlOGJlMjc2ZmNhMzMzMzEzZWMzMWQxYmJmMDExYjI5Zjg4YyJ9fX0='''
 
 FUNCTION_ITEM = '''player_head[custom_data={PublicBukkitValues:{"hypercube:codetemplatedata":'{"author":"TheFoxPlush","name":"&b&lFunction &3» &bfoxheadmaker_export","version":1,"code":"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"}'}},custom_name={extra:[{color:"#FFA200",shadow_color:-10341322,text:"FoxHeadmaker Extraction Function"}],italic:0b,text:""},lore=[{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Length: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"16 Blocks",underlined:0b}],text:""},{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Author: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"TheFoxPlush",underlined:0b}],text:""}],profile={id:[I;-1551409397,-611758825,-1137461988,998522893],name:"TheFoxPlush",properties:[{name:"textures",value:"ewogICJ0aW1lc3RhbXAiIDogMTc3Mzk0MzMxMDU5NSwKICAicHJvZmlsZUlkIiA6ICJhMzg3NWYwYmRiODk0ZDE3YmMzM2I1MWMzYjg0NDAwZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVGb3hQbHVzaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMWQ1Nzg3NTFhYzRkMjEzOWY4ODA3ZWE1NWM1MmNhM2ZhYTM3Y2M0NGU3NmMwOTBjMWYzOWZhNDA2NTQ2NzgxIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0sCiAgICAiQ0FQRSIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhkZTRhODE2ODhhZDE4YjQ5ZTczNWEyNzNlMDg2YzE4ZjFlMzk2Njk1NjEyM2NjYjU3NDAzNGMwNmY1ZDMzNiIKICAgIH0KICB9Cn0="}]}]'''
 FUNCTION_ITEM_EXPORTS = '''{DF_NBT:4671,components:{"minecraft:custom_data":{PublicBukkitValues:{"hypercube:codetemplatedata":'{"author":"TheFoxPlush","name":"&b&lFunction &3» &bfoxheadmaker_export","version":1,"code":"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"}'}},"minecraft:custom_name":{extra:[{color:"#FFA200",shadow_color:-10341322,text:"FoxHeadmaker Extraction Function"}],italic:0b,text:""},"minecraft:lore":[{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Length: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"16 Blocks",underlined:0b}],text:""},{extra:[{bold:0b,color:"gray",italic:0b,obfuscated:0b,strikethrough:0b,text:"Author: ",underlined:0b},{bold:0b,color:"#D4D4D4",italic:0b,obfuscated:0b,strikethrough:0b,text:"TheFoxPlush",underlined:0b}],text:""}],"minecraft:profile":{id:[I;-1551409397,-611758825,-1137461988,998522893],name:"TheFoxPlush",properties:[{name:"textures",signature:"qDqWbVRbv2hK3ik8wfBaIq9icU4qQstuxPfumbSjIv2votLAwmAyhV33I6GRd6gBoEBVyc6Kd3Q8226oj+dJFJ+A7LpDNbrbZbCM9v9dpqeXaInGvMeSq1177roqo0OtgqXt9K9iZ00JVyIPMyzUsN4Ky5LvamXR7YflFmMaPwfpyvBTgTWj2zm6GZ0Oh47BFfHSyKdUEjHnLdE+7vL5/g19C3e/hMkJvC8oUM/cnMuHs6QYBplXOV0bHAD62kdLLsNkTrtVcTyRcX2MfiuyWIe/PGNbul2VDlT32s0XBVWXcomyJ+5MI+X2DXE0nVsMwcDt8kJ4ovbK8qjlCPPSXBSpSZppyMGRLvSOGgQVYbDWyHWkctM6i+eJA5eGeZzqpbHAouxMj4xSO9HzPn4EmDVE8TsOdX9RQNGpfxlnvdU7hlfh7W7NRjnK7YWztVPhMH4QHLIrY+DVvuXKVGrtGr36pezhr/2JSxZ6WgZYofuZ0aE1ejObQiOw8MCNLkLrCC/dZJoOkpAuhTRHqs4Q5PlPwZzK+rIBc34KPhn54f4aUI6oRJPWVr8Hyrv5XpAwboByb/Yj9A7ZH89hZ1lJNfxATJQs1NvLr5N135h1cyefM4Ojsgvu9FqCZ5Vj3VxDYaBfLhIMzckTi8g9lZK1vZzSOeXInf4FD7T9uL0ot8A=",value:"ewogICJ0aW1lc3RhbXAiIDogMTc3Mzk0MzMxMDU5NSwKICAicHJvZmlsZUlkIiA6ICJhMzg3NWYwYmRiODk0ZDE3YmMzM2I1MWMzYjg0NDAwZCIsCiAgInByb2ZpbGVOYW1lIiA6ICJUaGVGb3hQbHVzaCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS9kMWQ1Nzg3NTFhYzRkMjEzOWY4ODA3ZWE1NWM1MmNhM2ZhYTM3Y2M0NGU3NmMwOTBjMWYzOWZhNDA2NTQ2NzgxIiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0sCiAgICAiQ0FQRSIgOiB7CiAgICAgICJ1cmwiIDogImh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhkZTRhODE2ODhhZDE4YjQ5ZTczNWEyNzNlMDg2YzE4ZjFlMzk2Njk1NjEyM2NjYjU3NDAzNGMwNmY1ZDMzNiIKICAgIH0KICB9Cn0="}]}},count:1,id:"minecraft:player_head"}'''
+
+next_request_time = -1
 
 LORE_TINT = Image.new("RGBA",(8,8),(170,0,170,255))
 
@@ -696,7 +698,6 @@ class CustomProgressbar(Label):
         self.max = max
         self.update()
     def update(self):
-        print(f"Updating progressbar: {self.variable.get()}/{self.max}")
         image = Image.open(asset(os.path.join("assets","progress_bar","empty.png"))).convert("RGBA")
         image_top = Image.open(asset(os.path.join("assets","progress_bar","full.png"))).convert("RGBA")
         image.paste(image_top.crop((0,0,round(self.variable.get()/self.max*image_top.size[0]),image_top.size[1])),(0,0))
@@ -1081,12 +1082,11 @@ def get_spritesheets():
     get_spritesheets_head_count.set(head_count)
     page_spritesheets_to_chars_prograss_bar.max = head_count
     spritesheets_to_chars_progress.set(0)
-    get_spritesheets_estimated_time.set("~"+seconds_to_rounded_time(MIN_REQ_TIME*head_count))
+    get_spritesheets_estimated_time.set("~"+seconds_to_rounded_time(head_count))
     if get_spritesheets_spritesheet_count.get() == 1:
         Notification(root,f"Loaded 1 spritesheet.","info")
     else:
         Notification(root,f"Loaded {get_spritesheets_spritesheet_count.get()} spritesheets.","info")
-    print(spritesheet_to_chars_images)
     make_previews()
 
 def spritesheets_to_chars_compile():
@@ -1115,6 +1115,7 @@ def spritesheets_to_chars_compile():
     worker_thread.start()
 
 def get_head_id_from_tile(tile,name): #generates a head id from mineskin
+    global next_request_time
     try:
         HEAD_TEMPLATE.paste(tile,(8,8))
         buffered = BytesIO()
@@ -1122,6 +1123,8 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
         tile_base64 = b64encode(buffered.getvalue()).decode("utf-8") #key of image to submit
         tile_base64 = f"data:image/png;base64,{tile_base64}"
         while True:
+            if next_request_time > time():
+                sleep(next_request_time-time()+0.1) #0.1 as a safety margin
             request_time = time()
             response = requests_post(
                 url='https://api.mineskin.org/v2/generate',
@@ -1129,34 +1132,29 @@ def get_head_id_from_tile(tile,name): #generates a head id from mineskin
                 headers={"Content-Type":"application/json","Accept":"application/json","Authorization": f'Bearer {config.args["auth_key"]}'}
             )
             request_time = time() - request_time
-            sleep_time = 0
+            next_request_time = time()+response.json()["rateLimit"]["next"]["relative"]/1000
             if response.status_code != 200: #error somewhere...
                 if response.status_code==403: #unauthorized access; wrong api key often times
                     Notification(root,"Your api key is likely incorrect. Shutting down task...","error")
                     return(None)
                 elif response.status_code==429: #requesting too fast; temporary slowdown
-                    Notification(root,"mineskin.org is receiving too many requests. Trying again in 20s...","error")
-                    sleep(20)
+                    Notification(root,"mineskin.org is receiving too many requests. Retrying...","warning")
+                    continue
+                elif response.status_code==500: #generator error
+                    Notification(root,f"Error from mineskin.org's generator. Retrying...","warning")
                     continue
                 else:
-                    Notification(root,f"Error from mineskin.org ({response.status_code}). Trying again in 5s...","error")
-                    sleep(5)
+                    Notification(root,f"Critical error from accessing mineskin.org ({response.status_code}). Shutting down task...","error")
                     continue
             break
         result = response.json()["skin"]["texture"]["data"]["value"] #raw output value
         result = base64_compressor_value(result) #compresses the value by stripping useless stuff
-        #computing remaining time
-        if response.json()["rateLimit"]["limit"]["minute"]["remaining"]==0:
-            sleep_time = response.json()["rateLimit"]["limit"]["minute"]["reset"]-time()
-        else:
-            sleep_time = max(MIN_REQ_TIME-request_time,0)
-        if sleep_time > 0:
-            sleep(sleep_time)
         return(result)
 
     except Exception as e:
         Notification(root,"A critical error occured grabbing the mineskin.org code.","error")
         logging.exception("Error in get_head_id_from_tile")
+        return(ERROR_BASE64) #in case of critical error, return an error head
 
 def base64_compressor_value(value):
     decoded = b64decode(value.encode("ascii")).decode("ascii")
@@ -1198,9 +1196,6 @@ def spritesheets_to_chars_process():
                         head_id_cache[tile_base64] = head_id
                         with open(HEAD_ID_CACHE_PATH,"w") as head_id_cache_file:
                             json_dump(head_id_cache,head_id_cache_file,indent=3)
-                    print("NEW COMPILED HEAD")
-                    print(head_id)
-                    print(f"key: {tile_base64}")
                     current_chain.append(head_id)
                     #visual stuff
                     spritesheets_to_chars_progress.set(spritesheets_to_chars_progress.get()+1)
@@ -1381,7 +1376,6 @@ def foxheadmaker1_fuse_async(destroy):
     with open(HEAD_ID_CACHE_PATH,"r") as head_id_cache_file:
         head_id_cache = json_load(head_id_cache_file)
     if os.path.exists(os.path.join(CACHE_DIR,"values")) and os.path.exists(os.path.join(CACHE_DIR,"heads")):
-        print("both folders exist")
         for value_file in os.listdir(os.path.join(CACHE_DIR,"values")):
             print(f"extracting values from {value_file}")
             with open(os.path.join(CACHE_DIR,"values",value_file),"r") as value_file_file:
@@ -1460,7 +1454,7 @@ if config.args["export_item_preference"]!="none":
 reset_preference_button.pack(padx=10,pady=10,side="left")
 
 toggleable_options_frame = CardFrame(page_options)
-toggleable_options_columns = ceil(sqrt(len(toggleable_options)))
+toggleable_options_columns = round(sqrt(len(toggleable_options)))
 option_vars = {}
 i = 0
 for option,values in toggleable_options.items():
